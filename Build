@@ -1,0 +1,94 @@
+﻿<?xml version="1.0"?>
+<!--
+
+   FILE:
+     Build
+
+   AUTHOR:
+     Carbonfrost Systems, Inc. (opensource@lists.carbonfrost.com)
+
+   Copyright (c) 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com/)
+   All rights reserved.
+
+   LICENSE:
+     CARBONFROST PUBLIC LICENSE
+
+  The contents of this file are subject to the Carbonfrost Public License,
+  which is equivalent to the Mozilla Public License Version 1.1 (the
+  "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at any of
+  http://carbonfrost.com/CPL, http://carbonfrost.org/CPL, or
+  http://www.mozilla.org/MPL/
+
+  Software distributed under the License is distributed on an "AS IS"
+  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+  License for the specific language governing rights and limitations under
+  the License.
+
+  The Original Code is Carbonfrost F5 Project
+
+  The Initial Developer of the Original Code is Carbonfrost Systems, Inc.
+
+  Contributor(s): ______________________________________.
+
+   $Revision$
+   $Date$
+
+-->
+<build
+  xmlns="http://ns.carbonfrost.com/2013/commons/build/"
+  defaultTarget="release">
+
+  <targets>
+
+    <target name="release">
+    <!--
+      <file>
+        <privateKeyAttributeGenerator
+          input="F5NonCommercial.snk">
+        </privateKeyAttributeGenerator>
+      </file>
+
+      <file>
+        <sourceAttachmentAttributeGenerator
+          sourceAttachmentUrl="https://go.carbonfrost.com/23534225">
+        </sourceAttachmentAttributeGenerator>
+      </file>
+
+      name="Carbonfrost.Commons.SharedRuntime"
+      -->
+      <file target="src/Carbonfrost.Commons.SharedRuntime/Automation/AssemblyInfo.g.cs">
+        <versionAttributeGenerator></versionAttributeGenerator>
+      </file>
+      
+      <file target="src/Carbonfrost.Commons.SharedRuntime/Automation/SR.g.resources">
+        <srgen namespace="Carbonfrost.Commons.SharedRuntime.Resources">
+          <include name="src/Carbonfrost.Commons.SharedRuntime/Automation/SR.properties" />
+        </srgen>
+      </file>
+      
+      <assembly target="bin/net40/debug/x86/Carbonfrost.Commons.SharedRuntime.dll"
+                privateKey="F5NonCommercial.snk">
+        <sources>
+          <include name="src/Carbonfrost.Commons.SharedRuntime/**/*.cs" />
+        </sources>
+        <embeddedResources>
+          <include name="src/Carbonfrost.Commons.SharedRuntime/**/*.resources" />
+        </embeddedResources>
+
+        <references>
+          <reference aliases="global">
+            <assembly name="mscorlib, Version=4.0" />
+            <assembly name="System" />
+            <assembly name="System.Core" />
+            <assembly name="System.XML" />
+            <include name="lib/*.dll" />
+          </reference>
+        </references>
+      </assembly>
+
+    </target>
+
+  </targets>
+
+</build>
