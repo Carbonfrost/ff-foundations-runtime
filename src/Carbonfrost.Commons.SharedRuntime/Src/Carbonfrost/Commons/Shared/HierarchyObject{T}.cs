@@ -18,6 +18,7 @@
 
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Collections.Generic;
 using Carbonfrost.Commons.Shared.Runtime;
@@ -121,9 +122,9 @@ namespace Carbonfrost.Commons.Shared {
 
         #region Properties.
 
-        public IList<T> Children {
+        public ReadOnlyCollection<T> Children {
             get {
-                return this.ChildrenImpl;
+                return new ReadOnlyCollection<T>(this.ChildrenImpl);
             }
         }
 
@@ -144,7 +145,7 @@ namespace Carbonfrost.Commons.Shared {
         #endregion
 
         public void AppendChild(T child) {
-            this.Children.Add(child);
+            this.ChildrenImpl.Add(child);
             ((IHierarchyObject) child).ParentObject = this;
         }
 
@@ -169,7 +170,7 @@ namespace Carbonfrost.Commons.Shared {
 
         public void InsertChild(int index, T value) {
             ValidateIndex(index);
-            this.Children.Insert(index, value);
+            this.ChildrenImpl.Insert(index, value);
         }
 
         public bool RemoveChild(T child) {
@@ -187,7 +188,7 @@ namespace Carbonfrost.Commons.Shared {
             ValidateIndex(index);
 
             T value = Children[index];
-            Children.RemoveAt(index);
+            ChildrenImpl.RemoveAt(index);
         }
 
         public void SetChild(int index, T value) {
@@ -195,15 +196,11 @@ namespace Carbonfrost.Commons.Shared {
                 throw new ArgumentNullException("value");  // $NON-NLS-1
 
             ValidateIndex(index);
-            this.Children[index] = value;
+            this.ChildrenImpl[index] = value;
         }
 
         public void RemoveAllChildren() {
-            Children.Clear();
-        }
-
-        public IEnumerator<T> GetChildrenEnumerator() {
-            return this.Children.GetEnumerator();
+            ChildrenImpl.Clear();
         }
 
         public int IndexOfChild(T item) {
