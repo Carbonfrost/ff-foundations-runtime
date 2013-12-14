@@ -96,7 +96,7 @@ namespace Tests.Runtime.Components {
         public void convert_component_name_to_string_short_form() {
             byte[] key = { 0x20, 0x40, 0x60, 0x80, 0xA0, 0xC0, 0xE0, 0xFF };
             ComponentName name = new ComponentName("A", new Version(1, 0, 0, 0), key, null, CultureInfo.GetCultureInfo("en-US"), ProcessorArchitecture.Amd64);
-            Assert.That(name.ToString("s"), Is.EqualTo("A=1.0.0.0-20406080A0C0E0FF-en-US-amd64"));
+            Assert.That(name.ToString("s"), Is.EqualTo("A=1.0.0.0-20406080a0c0e0ff-en-US-amd64"));
         }
 
         [Test]

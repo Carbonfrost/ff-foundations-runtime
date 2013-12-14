@@ -40,6 +40,11 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             this.attributeValues = attributeValues;
         }
 
+        internal static TAttribute GetCustomAttribute<TAttribute>(ICustomAttributeProvider pro, bool inherit) {
+            var attrs = pro.GetCustomAttributes(typeof(TAttribute), inherit);
+			return (TAttribute) attrs.FirstOrDefault();
+        }
+
         // `ICustomAttributeProvider' implementation.
 
         public virtual object[] GetCustomAttributes(bool inherit) {

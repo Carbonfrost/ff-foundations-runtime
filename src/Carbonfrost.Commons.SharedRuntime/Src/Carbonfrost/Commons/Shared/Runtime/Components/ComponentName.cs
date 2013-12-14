@@ -416,7 +416,7 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             if (this.publicKey == null) {
                 return string.Empty;
             } else {
-                return Utility.BytesToHex(this.publicKey);
+                return Utility.BytesToHex(this.publicKey, true);
             }
         }
 

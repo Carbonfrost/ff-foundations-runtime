@@ -18,6 +18,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Carbonfrost.Commons.Shared;
 using Carbonfrost.Commons.Shared.Runtime;
 using NUnit.Framework;
@@ -75,6 +76,14 @@ namespace Tests {
             Assert.That(all, Contains.Item("Carbonfrost.Commons.ComponentModel"));
 
             CollectionAssert.DoesNotContain(all, "Carbonfrost.Commons.ComponentModel.Annotations");
+        }
+
+        [Test]
+        public void should_process_reflect_only_assembly() {
+            Assembly a = Assembly.ReflectionOnlyLoad(@"System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            var info = AssemblyInfo.GetAssemblyInfo(a);
+
+            Assert.That(info.Url, Is.EqualTo(new Uri(a.CodeBase)));
         }
     }
 }

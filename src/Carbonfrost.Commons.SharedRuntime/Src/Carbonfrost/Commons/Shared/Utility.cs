@@ -337,10 +337,10 @@ namespace Carbonfrost.Commons.Shared {
 
         public static string GetImpliedName(Type type, string name) {
             string tname = type.Name;
-			if (tname.EndsWith(name, StringComparison.Ordinal))
-				return tname.Substring(0, tname.Length - name.Length);
-			else
-				return tname;
+            if (tname.EndsWith(name, StringComparison.Ordinal))
+                return tname.Substring(0, tname.Length - name.Length);
+            else
+                return tname;
         }
 
         public static StreamWriter MakeStreamWriter(Stream s, Encoding encoding) {
@@ -390,8 +390,8 @@ namespace Carbonfrost.Commons.Shared {
         static string GetNamespaceFilterRegexInternal(string pattern) {
             // Last one is special (allow .* to be used at end)
             pattern = pattern.Trim();
-			if (pattern.EndsWith(".*", StringComparison.Ordinal))
-				pattern = pattern.Substring(0, pattern.Length - 2) + (@"(\..+)?");
+            if (pattern.EndsWith(".*", StringComparison.Ordinal))
+                pattern = pattern.Substring(0, pattern.Length - 2) + (@"(\..+)?");
 
             return string.Concat("(^", pattern.Replace("*", ".+?"), "$)");
         }
@@ -408,6 +408,9 @@ namespace Carbonfrost.Commons.Shared {
         }
 
         public static bool IsScannableAssembly(Assembly a) {
+            if (a.ReflectionOnly)
+                return false;
+
             if (a == THIS_ASSEMBLY)
                 return true;
 

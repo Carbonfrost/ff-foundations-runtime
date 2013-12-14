@@ -33,12 +33,12 @@ namespace Carbonfrost.Commons.Shared {
     [Serializable]
     public sealed partial class AssemblyInfo : MarshalByRefObject, IRuntimeComponent, IAdaptable {
 
-        const string PROP_SOURCE_ATTACHMENT = "SourceAttachment";
-        const string PROP_PRIVATE_KEY = "PrivateKey";
-        const string PROP_LICENSE = "License";
-        const string PROP_BASE = "Base";
-        const string PROP_DEVELOPMENT = "Development";
-        const string PROP_URL = "Url";
+        const string PROP_SOURCE_ATTACHMENT = "sourceAttachment";
+        const string PROP_PRIVATE_KEY = "privateKey";
+        const string PROP_LICENSE = "license";
+        const string PROP_BASE = "base";
+        const string PROP_DEVELOPMENT = "development";
+        const string PROP_URL = "url";
 
         private readonly SortedList<string, NamespaceUri> xmlns = new SortedList<string, NamespaceUri>();
         private readonly IDictionary<NamespaceUri, string> xmlnsPrefixes
@@ -48,6 +48,7 @@ namespace Carbonfrost.Commons.Shared {
         private Assembly _extensionAssembly;
         private Assembly _developerAssembly;
         private bool initExtension;
+        private readonly ICustomAttributeProvider attributes;
         private readonly IProperties properties;
         private readonly Lazy<ComponentCollection> dependencies;
         private readonly SharedRuntimeOptionsAttribute options;
@@ -151,23 +152,28 @@ namespace Carbonfrost.Commons.Shared {
 
         private AssemblyInfo(Assembly a) {
             this.assembly = a;
-            this.properties = new Properties();
+            this.properties = new Properties(AssemblyComponentLoader.EnumerateMetadata(a));
             this.Base = new Uri(a.CodeBase);
             this.dependencies = new Lazy<ComponentCollection>(
                 () => (new ComponentCollection(
                     this.Assembly.GetReferencedAssemblies().Select(t => Component.Assembly(t)))));
 
-            BaseAttribute baseAttribute = Attribute.GetCustomAttribute(a, typeof(BaseAttribute)) as BaseAttribute;
+            if (a.ReflectionOnly)
+                this.attributes = new ReflectOnlyAssemblyAttributeProvider(a);
+            else
+                this.attributes = a;
+
+            var baseAttribute = CustomAttributeProvider.GetCustomAttribute<BaseAttribute>(this.attributes, false);
             if (baseAttribute != null) {
                 this.Base = baseAttribute.Source;
             }
 
-            UrlAttribute ua = Attribute.GetCustomAttribute(a, typeof(UrlAttribute)) as UrlAttribute;
+            var ua = CustomAttributeProvider.GetCustomAttribute<UrlAttribute>(this.attributes, false);
             if (ua != null) {
                 this.Url = ua.Url;
             }
 
-            SharedRuntimeOptionsAttribute sc = Attribute.GetCustomAttribute(a, typeof(SharedRuntimeOptionsAttribute)) as SharedRuntimeOptionsAttribute;
+            var sc = CustomAttributeProvider.GetCustomAttribute<SharedRuntimeOptionsAttribute>(this.attributes, false);
             this.options = sc ?? SharedRuntimeOptionsAttribute.Default;
             this.Scannable = Utility.IsScannableAssembly(a);
         }
@@ -191,7 +197,7 @@ namespace Carbonfrost.Commons.Shared {
             if (!map.TryGetValue(assembly, out result)) {
                 result = map[assembly] = new AssemblyInfo(assembly);
 
-                var filters = assembly.GetCustomAttributes(false).OfType<IAssemblyInfoFilter>()
+                var filters = result.attributes.GetCustomAttributes(false).OfType<IAssemblyInfoFilter>()
                     .Concat(AssemblyInfo.staticFilters);
 
                 foreach (IAssemblyInfoFilter filter in filters) {

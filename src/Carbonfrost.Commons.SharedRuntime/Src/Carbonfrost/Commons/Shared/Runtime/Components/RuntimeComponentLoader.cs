@@ -18,7 +18,6 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Carbonfrost.Commons.Shared.Runtime.Components {
@@ -47,6 +46,10 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
                 throw Failure.EmptyString("componentType");
 
             return AppDomain.CurrentDomain.GetProvider<RuntimeComponentLoader>(new { ComponentType = componentType });
+        }
+
+        public virtual IPropertyStore LoadMetadata(string componentType, Uri source) {
+            return Properties.Null;
         }
 
         public static RuntimeComponentLoader FromName(string name) {
