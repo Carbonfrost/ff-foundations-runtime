@@ -53,9 +53,9 @@ namespace Tests.Runtime {
 
         [Test]
         public void get_type_from_qualified_name_open_generic_type() {
-            var open = typeof(IHierarchyObject<>);
+            var open = typeof(AdapterFactory<>);
 
-            string fullName = string.Format("{{{0}}} IHierarchyObject-1", Xmlns.SharedRuntime2008);
+            string fullName = string.Format("{{{0}}} AdapterFactory-1", Xmlns.SharedRuntime2008);
             Assert.That(
                 open.GetQualifiedName().ToString(),
                 Is.EqualTo(fullName));

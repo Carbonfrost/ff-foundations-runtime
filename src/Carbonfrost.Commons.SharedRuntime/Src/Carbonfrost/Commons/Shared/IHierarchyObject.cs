@@ -18,10 +18,12 @@
 
 
 using System;
+using System.Collections.Generic;
 
 namespace Carbonfrost.Commons.Shared {
 
     public interface IHierarchyObject {
         IHierarchyObject ParentObject { get; set; }
+        IEnumerable<IHierarchyObject> ChildrenObjects { get; }
     }
 }

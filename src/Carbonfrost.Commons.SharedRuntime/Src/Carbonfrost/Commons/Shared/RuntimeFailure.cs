@@ -57,14 +57,6 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return Failure.Prepare(new InvalidOperationException(SR.StreamContextDoesNotExist()));
         }
 
-        public static ArgumentException NoRelativeTraversal() {
-            return Failure.Prepare(new ArgumentException(SR.NoRelativeTraversal()));
-        }
-
-        public static NotSupportedException SelectAttributesNotSupported() {
-            return Failure.Prepare(new NotSupportedException(SR.CannotSelectAttributes()));
-        }
-
         public static NotSupportedException SeekNotSupportedByBase() {
             return Failure.Prepare(new NotSupportedException(SR.SeekNotSupportedByBase()));
         }

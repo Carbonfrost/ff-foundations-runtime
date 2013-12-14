@@ -26,14 +26,34 @@ namespace Carbonfrost.Commons.Shared {
 
     [Serializable]
     public abstract class HierarchyObject<T>
-        : IHierarchyObject, IHierarchyObject<T>, IHierarchyNavigable
-        where T : HierarchyObject<T>
+        : IHierarchyObject, IHierarchyNavigable
+        where T : HierarchyObject<T>, IHierarchyObject
     {
 
         private T parent;
 
+        // TODO Casts could be invalid (rare)
+        // class A : HierarchyObject<B>,  class B : HierarchyObject<B>
+        // but A can't cast to B
+
         public IEnumerable<T> Ancestors {
             get { return this.GetAncestors().Cast<T>(); }
+        }
+        
+        public IEnumerable<T> AncestorsAndSelf {
+            get { return this.GetAncestorsAndSelf().Cast<T>(); }
+        }
+        
+        public IEnumerable<T> Descendents {
+            get {
+                return this.Children.SelectMany(t => t.DescendentsAndSelf);
+            }
+        }
+        
+        public IEnumerable<T> DescendentsAndSelf {
+            get {
+                return (new [] { this}).Cast<T>().Concat(this.Descendents);
+            }
         }
 
         public T FirstChild {
@@ -50,8 +70,9 @@ namespace Carbonfrost.Commons.Shared {
             this.parent = parent;
         }
 
-        protected virtual void OnParentChanged() {}
-        protected virtual void OnParentChanging(IHierarchyObject newParent) {}
+        protected virtual void SetParent(T parent) {
+            this.parent = parent;
+        }
 
         // 'IHierarchyObject' implementation.
 
@@ -60,18 +81,16 @@ namespace Carbonfrost.Commons.Shared {
             set { this.ParentObject = (T) value; }
         }
 
-        // 'IHierarchyObject<T>' implementation.
+        IEnumerable<IHierarchyObject> IHierarchyObject.ChildrenObjects {
+            get { return this.Children; }
+        }
 
-        public T ParentObject {
+        protected T ParentObject {
             get {
                 return this.parent;
             }
             set {
-                if (!object.Equals(this.parent, value)) {
-                    OnParentChanging(value);
-                    this.parent = value;
-                    OnParentChanged();
-                }
+                this.SetParent(value);
             }
         }
 
@@ -92,46 +111,23 @@ namespace Carbonfrost.Commons.Shared {
             if (name.Length == 0)
                 throw Failure.EmptyString("name"); // $NON-NLS-1
 
-            if (AllowRelativeTraversal) {
-                if (name == ".") // $NON-NLS-1
-                    return (T) this;
-
-                if (name == "..") // $NON-NLS-1
-                    return this.ParentObject;
-            }
-
-            if (name == "." || name == "..") // $NON-NLS-1, $NON-NLS-2
-                throw RuntimeFailure.NoRelativeTraversal();
-
             return default(T);
         }
 
         public virtual T SelectChild(int index) {
             Require.WithinRange(null, this.Children, "index", index); // $NON-NLS-1
-
-            if (AllowOrdinalTraversal)
-                return this.Children[index];
-            else
-                throw new InvalidOperationException();
-        }
-
-        public virtual object SelectAttribute(string attribute) {
-            throw RuntimeFailure.SelectAttributesNotSupported();
+            return this.Children[index];
         }
 
         #region Properties.
 
-        [SelfDescribingPriority(PriorityLevel.None)]
-        protected virtual bool AllowRelativeTraversal {
-            get { return true; }
+        public IList<T> Children {
+            get {
+                return this.ChildrenImpl;
+            }
         }
 
-        [SelfDescribingPriority(PriorityLevel.None)]
-        protected virtual bool AllowOrdinalTraversal {
-            get { return true; }
-        }
-
-        protected virtual IList<T> Children {
+        protected virtual IList<T> ChildrenImpl {
             get {
                 return Empty<T>.Array;
             }

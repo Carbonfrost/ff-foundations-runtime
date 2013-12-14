@@ -24,6 +24,5 @@ namespace Carbonfrost.Commons.Shared {
     public interface IHierarchyNavigable {
         IHierarchyNavigable SelectChild(string name);
         IHierarchyNavigable SelectChild(int index);
-        object SelectAttribute(string attribute);
     }
 }
