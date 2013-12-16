@@ -31,6 +31,7 @@ using Carbonfrost.Commons.Shared.Runtime.Components;
 namespace Carbonfrost.Commons.Shared {
 
     [Serializable]
+    [RuntimeComponentUsage(Name = ComponentTypes.Assembly)]
     public sealed partial class AssemblyInfo : MarshalByRefObject, IRuntimeComponent, IAdaptable {
 
         const string PROP_SOURCE_ATTACHMENT = "sourceAttachment";

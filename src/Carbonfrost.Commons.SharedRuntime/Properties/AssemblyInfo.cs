@@ -58,5 +58,6 @@ using Carbonfrost.Commons.Shared.Runtime.Components;
 [assembly: Provides(typeof(IService))]
 [assembly: Provides(typeof(StreamingSource))]
 [assembly: Provides(typeof(IPopulateComponentCallback))]
+[assembly: Provides(typeof(IRuntimeComponent))]
 
 [assembly: SharedRuntimeOptions(Optimizations = SharedRuntimeOptimizations.DisableTemplateScanning)]

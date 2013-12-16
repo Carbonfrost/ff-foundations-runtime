@@ -475,7 +475,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (appDomain == null)
                 throw new ArgumentNullException("appDomain");
 
-            return RuntimeComponent.DescribeComponentTypes(appDomain).Keys;
+            return appDomain.GetProviderNames(typeof(IRuntimeComponent))
+                .Select(t => t.LocalName);
         }
 
         public static Type GetImplicitAdapterType(this Type adapteeType, string adapterRoleName) {

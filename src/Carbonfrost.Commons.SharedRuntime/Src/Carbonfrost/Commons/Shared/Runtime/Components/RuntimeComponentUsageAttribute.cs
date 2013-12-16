@@ -1,7 +1,7 @@
 //
-// - ComponentAttribute.cs -
+// - RuntimeComponentUsageAttribute.cs -
 //
-// Copyright 2005, 2006, 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,20 +18,15 @@
 
 
 using System;
+using System.Linq;
 
 namespace Carbonfrost.Commons.Shared.Runtime.Components {
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public sealed class ComponentAttribute : Attribute {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+    public sealed class RuntimeComponentUsageAttribute : ProviderAttribute {
 
-        private readonly string componentType;
-
-        public string ComponentType {
-            get { return componentType; }
+        public RuntimeComponentUsageAttribute() : base(typeof(IRuntimeComponent)) {
         }
 
-        public ComponentAttribute(string componentType) {
-            this.componentType = componentType;
-        }
     }
 }

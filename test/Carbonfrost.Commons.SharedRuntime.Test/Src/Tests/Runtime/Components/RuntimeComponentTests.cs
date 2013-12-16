@@ -32,7 +32,16 @@ namespace Tests.Runtime.Components {
                         Is.EqualTo(typeof(AssemblyInfo)));
         }
 
+        [Test]
+        public void define_component_using_component_attribute() {
+            Assert.That(RuntimeComponent.GetRuntimeComponentType("TestComponent"), Is.EqualTo(typeof(MyComponent)));
+            Assert.That(RuntimeComponent.GetRuntimeComponentType("NonExistant"), Is.Null);
+        }
+
     }
+
+    [RuntimeComponentUsage(Name = "TestComponent")]
+    public class MyComponent {}
 
 
 }

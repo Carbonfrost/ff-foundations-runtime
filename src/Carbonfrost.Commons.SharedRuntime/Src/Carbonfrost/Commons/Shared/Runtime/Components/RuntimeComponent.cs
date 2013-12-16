@@ -92,25 +92,7 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             if (componentType == ComponentTypes.Anything)
                 throw RuntimeFailure.ComponentTypeCannotBeAnything("componentType");
 
-            if (componentType == ComponentTypes.Assembly) {
-                return typeof(AssemblyInfo);
-            }
-
-            return DescribeComponentTypes(AppDomain.CurrentDomain).GetValueOrDefault(componentType);
+            return AppDomain.CurrentDomain.GetProviderType(typeof(IRuntimeComponent), componentType);
         }
-
-
-        internal static IDictionary<string, Type> DescribeComponentTypes(AppDomain appDomain) {
-            return appDomain.DescribeAssemblies(ComponentTypesSelector);
-        }
-
-        private static IEnumerable<KeyValuePair<string, Type>> ComponentTypesSelector(Assembly a) {
-            foreach (var t in a.GetTypes()) {
-                foreach (ComponentAttribute ca in Attribute.GetCustomAttributes(t, typeof(ComponentAttribute))) {
-                    yield return new KeyValuePair<string, Type>(ca.ComponentType, t);
-                }
-            }
-        }
-
     }
 }
