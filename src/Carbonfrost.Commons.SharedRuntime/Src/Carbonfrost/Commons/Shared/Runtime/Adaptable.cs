@@ -388,7 +388,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             Type[] candidates;
             if (dict.TryGetValue(adapterRoleName, out candidates)
                 && candidates.Length > 0) {
-                result = Adapt(source, candidates[0]);
+                var pms = Properties.FromArray(source);
+                result = Activation.CreateInstance(candidates[0], pms);
             }
 
             return result;

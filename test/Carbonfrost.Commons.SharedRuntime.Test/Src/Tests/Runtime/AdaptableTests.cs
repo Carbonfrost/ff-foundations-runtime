@@ -76,6 +76,16 @@ namespace Tests.Runtime {
             Assert.That(Adaptable.GetMethodBySignature(typeof(LateImpl), "Build", Signature) == typeof(LateImpl).GetMethods()[0]);
         }
 
+        [Test]
+        public void try_adapt_nominal() {
+            Properties p = new Properties();
+            var ps = p.TryAdapt("StreamingSource");
+            var pp = p.TryAdapt("Builder");
+
+            Assert.That(ps, Is.InstanceOf<PropertiesStreamingSource>());
+            Assert.That(pp, Is.Null);
+        }
+
     }
 
 }
