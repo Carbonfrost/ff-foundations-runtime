@@ -24,9 +24,9 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
 
     sealed class NullComponentStore : ComponentStore {
 
-        public override IDictionary<QualifiedName, string> GetComponentMetadata(string componentType,
+        public override IPropertyStore GetComponentMetadata(string componentType,
                                                                                 ComponentName componentName) {
-            return Empty<QualifiedName, string>.Dictionary;
+            return Properties.Null;
         }
 
         public override Component FindComponentByUrl(string componentType, Uri source) {
@@ -38,6 +38,10 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
         }
 
         public override Component FindComponentByName(string componentType, ComponentName componentName) {
+            return null;
+        }
+
+        public override Component FindComponent(string componentType, object criteria) {
             return null;
         }
 

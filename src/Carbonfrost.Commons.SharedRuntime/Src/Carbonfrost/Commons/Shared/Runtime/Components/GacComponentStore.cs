@@ -30,26 +30,27 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             Carbonfrost.Commons.Shared.Runtime.Components.ComponentTypes.Assembly
         };
 
-        public override IDictionary<QualifiedName, string> GetComponentMetadata(string componentType, ComponentName componentName) {
+        public override IPropertyStore GetComponentMetadata(string componentType, ComponentName componentName) {
             throw new NotImplementedException();
         }
 
         public override ICollection<string> ComponentTypes {
             get { return _componentTypes; } }
 
-        public override Component FindComponentByUrl(string componentType, Uri source)
-        {
+        public override Component FindComponentByUrl(string componentType, Uri url) {
             throw new NotImplementedException();
         }
 
-        public override Component FindComponentBySource(string componentType, Uri source)
-        {
+        public override Component FindComponentBySource(string componentType, Uri source) {
             throw new NotImplementedException();
         }
 
-        public override Component FindComponentByName(string componentType, ComponentName componentName)
-        {
+        public override Component FindComponentByName(string componentType, ComponentName componentName) {
             throw new NotImplementedException();
+        }
+
+        public override Component FindComponent(string componentType, object criteria) {
+            return null;
         }
     }
 }

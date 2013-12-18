@@ -21,8 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Carbonfrost.Commons.ComponentModel.Annotations;
-
 namespace Carbonfrost.Commons.Shared.Runtime.Components {
 
     sealed class CompositeComponentStore : ComponentStore {
@@ -40,19 +38,23 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
         }
 
         public override Component FindComponentByName(string componentType, ComponentName componentName) {
-            throw new NotImplementedException();
+            return this.stores.FirstNonNull(t => t.FindComponentByName(componentType, componentName));
         }
 
         public override Component FindComponentBySource(string componentType, Uri source) {
-            throw new NotImplementedException();
+            return this.stores.FirstNonNull(t => t.FindComponentBySource(componentType, source));
         }
 
-        public override Component FindComponentByUrl(string componentType, Uri source) {
-            throw new NotImplementedException();
+        public override Component FindComponentByUrl(string componentType, Uri url) {
+            return this.stores.FirstNonNull(t => t.FindComponentByUrl(componentType, url));
         }
 
-        public override IDictionary<QualifiedName, string> GetComponentMetadata(string componentType, ComponentName componentName) {
-            throw new NotImplementedException();
+        public override IPropertyStore GetComponentMetadata(string componentType, ComponentName componentName) {
+            return this.stores.FirstNonNull(t => t.GetComponentMetadata(componentType, componentName));
+        }
+
+        public override Component FindComponent(string componentType, object criteria) {
+            return this.stores.FirstNonNull(t => t.FindComponent(componentType, criteria));
         }
     }
 }

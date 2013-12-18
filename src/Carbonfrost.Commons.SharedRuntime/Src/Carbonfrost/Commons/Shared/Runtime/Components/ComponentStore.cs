@@ -55,7 +55,8 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
 
         public abstract Component FindComponentByName(string componentType, ComponentName componentName);
         public abstract Component FindComponentBySource(string componentType, Uri source);
-        public abstract Component FindComponentByUrl(string componentType, Uri source);
+        public abstract Component FindComponentByUrl(string componentType, Uri url);
+        public abstract Component FindComponent(string componentType, object criteria);
 
         // TODO Other metadata properties
 
@@ -67,7 +68,7 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             return GetMetadataUri(componentType, componentName, ShareableCode.Url);
         }
 
-        public abstract IDictionary<QualifiedName, string> GetComponentMetadata(string componentType, ComponentName componentName);
+        public abstract IPropertyStore GetComponentMetadata(string componentType, ComponentName componentName);
 
         public virtual IEnumerable<Component> GetDependencies(string componentType, ComponentName componentName) {
             if (componentType == null)
@@ -93,7 +94,7 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
                                          QualifiedName property) {
 
             return GetComponentMetadata(componentType, componentName)
-                .GetValueOrDefault(property);
+                .GetString(property.ToString());
         }
 
         private Uri GetMetadataUri(string componentType,
