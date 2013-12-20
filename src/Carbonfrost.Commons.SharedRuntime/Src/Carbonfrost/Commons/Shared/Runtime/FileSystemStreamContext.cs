@@ -67,7 +67,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
 	    public override bool IsLocal { get { return true; } }
 	    public override CultureInfo Culture { get { return this.culture; } }
-	    public override Uri Uri { get { return new Uri(FileSystem.GetNativeLanguageFile(this.baseFileName, this.culture, NativeLanguageStyle.Name)); } }
+        public override Uri Uri {
+           get {
+                string file = FileSystem.GetNativeLanguageFile(this.baseFileName, this.culture, NativeLanguageStyle.Name);
+                return new Uri(file, UriKind.RelativeOrAbsolute);
+            }
+        }
 
         public override Encoding Encoding {
             get { return this.encoding; }
@@ -88,13 +93,13 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 	        return new FileSystemStreamContext(this.baseFileName, this.Culture, encoding ?? this.encoding);
         }
 
-	    protected override Stream GetStreamCore(FileAccess fileAccess) {
+	    protected override Stream GetStreamCore(FileAccess access) {
 	        // Find the appropriate culture sensitive path
 	        string realPath = FileSystem.FindBestNativeLanguageFile(this.baseFileName, this.culture);
 	        FileStream result = null;
 
 	        try {
-	            switch (fileAccess) {
+	            switch (access) {
 	                case FileAccess.Read:
 	                    bool exists = File.Exists(realPath);
 	                    if (exists) {

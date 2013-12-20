@@ -341,7 +341,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 }
             } else {
                 // Relative URIs must be handled in this way
-                return new UriStreamContext(source, null);
+                return FromFile(source.ToString());
             }
         }
 

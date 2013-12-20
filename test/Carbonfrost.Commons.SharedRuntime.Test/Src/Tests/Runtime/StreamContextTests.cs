@@ -34,5 +34,12 @@ namespace Tests.Runtime {
             Assert.That(sc.Uri.ToString(),
                         Is.EqualTo("data:text/plain; charset=utf-32;base64," + chars));
         }
+
+        [Test]
+        public void relative_uri_treat_as_file() {
+            var s = StreamContext.FromSource(new Uri("./Build", UriKind.Relative));
+            Assert.That(s, Is.InstanceOf<FileSystemStreamContext>());
+            Assert.That(s.Uri, Is.EqualTo(new Uri("./Build", UriKind.Relative)));
+        }
     }
 }
