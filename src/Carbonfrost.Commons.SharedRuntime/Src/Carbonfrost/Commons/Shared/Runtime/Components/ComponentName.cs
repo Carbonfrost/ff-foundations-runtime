@@ -381,12 +381,9 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             }
 
             if (this.publicKey != null) {
-                if (this.usePublicKeyToken) {
-                    result.Append(", PublicKeyToken="); // $NON-NLS-1
-                } else {
-                    result.Append(", PublicKey="); // $NON-NLS-1
-                }
-                result.Append(this.GetPublicKeyEncoding());
+                string t = Utility.BytesToHex(this.GetPublicKeyToken(), true);
+                result.Append(", PublicKeyToken="); // $NON-NLS-1
+                result.Append(t);
             }
 
             if (this.hash != null) {

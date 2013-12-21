@@ -107,6 +107,14 @@ namespace Tests.Runtime.Components {
                         Is.EqualTo("20-40-60-80-A0-C0-E0-FF"));
         }
 
+        [Test]
+        public void print_public_key_token_by_default() {
+            ComponentName name = ComponentName.FromAssemblyName(typeof(ComponentName).Assembly.GetName());
+            Assert.That(name.ToString(), Is.StringMatching("PublicKeyToken=d09aaf34527fe3e6"));
+
+        }
+
+        [Test]
         public void matches_reflexive() {
             var name = ComponentName.Parse("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
             Assert.True(name.Matches(name));
