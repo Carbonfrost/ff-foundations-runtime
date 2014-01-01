@@ -86,6 +86,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             Save(fileName, false, Encoding.UTF8);
         }
 
+        public void Save(TextWriter writer) {
+            using (PropertiesWriter pw = new PropertiesWriter(writer)) {
+                SaveCore(pw);
+            }
+        }
+
         public void Save(Stream stream, Encoding encoding) {
             using (StreamWriter writer = new StreamWriter(stream, encoding)) {
                 using (PropertiesWriter pw = new PropertiesWriter(writer)) {
@@ -100,6 +106,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                     SaveCore(pw);
                 }
             }
+        }
+
+        public override string ToString() {
+            return ToKeyValuePairs(this);
         }
 
         protected virtual bool IsReadOnlyCore(string property) { return false; }

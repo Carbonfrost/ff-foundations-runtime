@@ -18,11 +18,14 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    sealed class ArrayPropertyProvider : IPropertyProvider {
+    sealed class ArrayPropertyProvider : IPropertyProvider, IEnumerable<KeyValuePair<string, object>> {
 
         private readonly object[] items;
 
@@ -46,6 +49,19 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
             value = items[index];
             return propertyType.IsInstanceOfType(value);
+        }
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() {
+            return items.Select(
+                (t, i) => new KeyValuePair<string, object>(i.ToString(), t)).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
+
+        public override string ToString() {
+            return Properties.ToKeyValuePairs(this);
         }
 
     }
