@@ -18,7 +18,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
@@ -33,7 +35,9 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
         }
 
         public override IRuntimeComponent Load(string componentType, Uri source) {
-            return LoadCore(componentType, source, ReflectionAssembly.LoadFrom);
+            return LoadCore(componentType,
+                            source,
+                            s => (AppDomain.CurrentDomain.Load(File.ReadAllBytes(s))));
         }
 
         public override IPropertyStore LoadMetadata(string componentType, Uri source) {
