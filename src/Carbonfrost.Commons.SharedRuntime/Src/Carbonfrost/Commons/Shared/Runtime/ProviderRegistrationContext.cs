@@ -71,6 +71,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
             var tr = new ProviderType(providerInstanceType, providerType, qn);
             tr.Metadata = ProviderMetadataWrapper.Create(metadata);
+            tr.Metadata.Source = tr;
             result.Add(tr);
         }
 
@@ -88,6 +89,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
             var fieldResult = new ProviderField(field, providerType, qn);
             fieldResult.Metadata = ProviderMetadataWrapper.Create(metadata);
+            fieldResult.Metadata.Source = fieldResult;
             result.Add(fieldResult);
         }
 
@@ -107,6 +109,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                                                   providerType,
                                                   name);
             methodResult.Metadata = ProviderMetadataWrapper.Create(metadata);
+            methodResult.Metadata.Source = methodResult;
             result.Add(methodResult);
         }
 
@@ -240,6 +243,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             public override MemberInfo Member {
                 get {
                     return this.type;
+                }
+            }
+
+            public override Assembly Assembly {
+                get {
+                    return this.type.Assembly;
                 }
             }
 

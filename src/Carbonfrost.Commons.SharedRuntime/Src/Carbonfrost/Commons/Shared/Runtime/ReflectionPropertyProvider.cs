@@ -58,7 +58,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         private PropertyDescriptor _GetProperty(string property) {
-            return _EnsureProperties().Find(property, false);
+            return _EnsureProperties().Find(property, true);
         }
 
         protected PropertyDescriptorCollection _EnsureProperties() {

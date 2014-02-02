@@ -110,7 +110,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 if (ap != null) {
                     results.Add(ap);
                 } else
-					e.AddIfNotNull(f.GetType().GetActivationProviderType());
+                    e.AddIfNotNull(f.GetType().GetActivationProviderType());
             }
             results.AddRange(activationProviderCache.GetAll(e));
 
@@ -124,7 +124,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("assembly");
 
             return assembly.GetAttribute<SharedRuntimeOptionsAttribute>()
-			     ?? SharedRuntimeOptionsAttribute.Default;
+                ?? SharedRuntimeOptionsAttribute.Default;
         }
 
         public static IEnumerable<Type> FilterTypes(
@@ -167,6 +167,15 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         // TODO Actually consider the appdomain in use
+        public static IEnumerable<Assembly> DescribeAssemblies(
+            this AppDomain appDomain) {
+
+            if (appDomain == null)
+                throw new ArgumentNullException("appDomain");
+
+            return new Buffer<Assembly>(AssemblyBuffer.Instance);
+        }
+
         public static IEnumerable<TValue> DescribeAssemblies<TValue>(
             this AppDomain appDomain, Func<Assembly, IEnumerable<TValue>> selector) {
 

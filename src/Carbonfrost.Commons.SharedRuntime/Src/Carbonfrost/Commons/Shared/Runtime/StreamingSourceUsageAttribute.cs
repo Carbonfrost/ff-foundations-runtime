@@ -36,7 +36,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public StreamingSourceUsageAttribute() : base(typeof(StreamingSource)) {
         }
 
-        public override int MatchCriteria(object criteria) {
+        protected override int MatchCriteriaCore(object criteria) {
             if (criteria == null)
                 return 0;
 

@@ -19,6 +19,8 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
+using Carbonfrost.Commons.Shared.Runtime.Components;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -26,14 +28,39 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         readonly object value;
 
-        static readonly IProviderMetadata Null = new NullProviderMetadata();
-
         public ProviderMetadataWrapper(object value) {
             this.value = value;
         }
 
+        public ProviderValueSource Source { get; set; }
+
         public int MatchCriteria(object criteria) {
-            return ProviderMetadataWrapper.MemberwiseEquals(value, criteria);
+            return MatchMemberCriteria(this.Source, criteria)
+                + ProviderMetadataWrapper.MemberwiseEquals(value, criteria);
+        }
+
+        internal static int MatchMemberCriteria(ProviderValueSource source, object criteria) {
+            if (criteria == null)
+                return 0;
+
+            var cpp = Properties.FromValue(criteria);
+
+            int result = 0;
+
+            // Match member and assembly
+            var asm = cpp.GetProperty("Assembly", (Assembly) null);
+            var mem = cpp.GetProperty("Member", (MemberInfo) null);
+
+            if (asm != null) {
+
+                result += asm.GetName().FullName
+                    == source.Assembly.GetName().FullName ? 1 : 0;
+            }
+            if (mem != null) {
+                result += mem == source.Member ? 1 : 0;
+            }
+
+            return result;
         }
 
         internal static int MemberwiseEquals(object criteria, object other) {
@@ -45,17 +72,24 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         public static IProviderMetadata Create(object metadata) {
-            if (metadata == null)
-                return Null;
-
             var pm = metadata as IProviderMetadata;
             if (pm == null)
-                return new ProviderMetadataWrapper(metadata);
+                return new ProviderMetadataWrapper(metadata ?? DBNull.Value);
             else
                 return pm;
         }
 
+        object IProviderMetadata.Value {
+            get { return this.value; } }
+
         sealed class NullProviderMetadata : IProviderMetadata {
+
+            object IProviderMetadata.Value {
+                get { return null; } }
+
+            ProviderValueSource IProviderMetadata.Source {
+                get { return null; }
+                set {} }
 
             public int MatchCriteria(object criteria) {
                 return 0;

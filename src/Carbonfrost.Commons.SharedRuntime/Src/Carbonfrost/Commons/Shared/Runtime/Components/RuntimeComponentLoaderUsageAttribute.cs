@@ -40,7 +40,7 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
         public RuntimeComponentLoaderUsageAttribute()
             : base(typeof(RuntimeComponentLoader)) {}
 
-        public override int MatchCriteria(object criteria) {
+        protected override int MatchCriteriaCore(object criteria) {
             if (criteria == null)
                 return 0;
 

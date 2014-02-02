@@ -364,6 +364,9 @@ namespace Carbonfrost.Commons.Shared {
         }
 
         public static Encoding GetEncodingFromContentType(string contentType) {
+            if (string.IsNullOrEmpty(contentType))
+                return null;
+
             Match m = Regex.Match(contentType, @"charset\s*=\s*(?'Encoding'[^;]+)");
             return m.Success ? Encoding.GetEncoding(m.Groups["Encoding"].Value) : null;
         }
@@ -454,6 +457,17 @@ namespace Carbonfrost.Commons.Shared {
                 return cache = (text ?? string.Empty).Split(chars, StringSplitOptions.RemoveEmptyEntries);
             else
                 return cache;
+        }
+
+        public static string GetExtension(Uri uri) {
+            string file;
+            if (uri.IsAbsoluteUri)
+                file = uri.AbsolutePath;
+            else
+                file = uri.ToString();
+
+            Match m = Regex.Match(file, @"\.\w+$");
+            return m.Success ? m.Groups[0].Value : string.Empty;
         }
     }
 

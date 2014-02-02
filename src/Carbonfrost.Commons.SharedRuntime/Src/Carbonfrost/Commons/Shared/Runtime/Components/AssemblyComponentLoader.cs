@@ -24,6 +24,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
+using Carbonfrost.Commons.ComponentModel.Annotations;
 using ReflectionAssembly = System.Reflection.Assembly;
 
 namespace Carbonfrost.Commons.Shared.Runtime.Components {
@@ -89,12 +90,41 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             string platform = GetPlatform(assembly);
             Version version = assembly.GetName().Version;
 
+            ICustomAttributeProvider attributes;
+
+            if (assembly.ReflectionOnly)
+                attributes = new ReflectOnlyAssemblyAttributeProvider(assembly);
+            else
+                attributes = assembly;
+
+            Uri myBase = null;
+            Uri url = null;
+            Uri license = null;
+
+            var baseAttribute = CustomAttributeProvider.GetCustomAttribute<BaseAttribute>(attributes, false);
+            if (baseAttribute != null) {
+                myBase = baseAttribute.Source;
+            }
+
+            var licenseAttribute = CustomAttributeProvider.GetCustomAttribute<LicenseAttribute>(attributes, false);
+            if (licenseAttribute != null) {
+                license = licenseAttribute.Uri;
+            }
+
+            var ua = CustomAttributeProvider.GetCustomAttribute<UrlAttribute>(attributes, false);
+            if (ua != null) {
+                url = ua.Url;
+            }
+
             return Properties.FromValue(new {
                                             name = cname.Name,
                                             configuration = config,
                                             assemblyName = cname,
                                             platform = platform,
                                             targetFramework = target,
+                                            @base = myBase,
+                                            license = license,
+                                            url = url,
                                             version = version, });
         }
 

@@ -26,6 +26,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Carbonfrost.Commons.ComponentModel;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
@@ -91,27 +92,27 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                                           IServiceProvider serviceProvider) {
             return (T) CreateInstance(type, null, null, serviceProvider, null);
         }
-        
+
         public static T CreateInstance<T>(Type type) {
             return (T) CreateInstance(type, null, null, null, null);
         }
-        
+
         public static T CreateInstance<T>(IEnumerable<KeyValuePair<string, object>> values,
                                           IPopulateComponentCallback callback,
                                           IServiceProvider serviceProvider,
                                           params Attribute[] attributes) {
             return (T) CreateInstance(typeof(T), values, callback, serviceProvider, attributes);
         }
-        
+
         public static T CreateInstance<T>(IEnumerable<KeyValuePair<string, object>> values,
                                           IPopulateComponentCallback callback) {
             return (T) CreateInstance(typeof(T), values, callback, null, null);
         }
-        
+
         public static T CreateInstance<T>(IEnumerable<KeyValuePair<string, object>> values) {
             return (T) CreateInstance(typeof(T), values, null, null, null);
         }
-        
+
         public static T CreateInstance<T>(this IActivationFactory factory) {
             return (T) CreateInstance(factory: factory, type: typeof(T));
         }
@@ -218,7 +219,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("componentType");
             if (uri == null)
                 throw new ArgumentNullException("uri");
-            throw new NotImplementedException();
+
+            return FromStreamContext(componentType, StreamContext.FromSource(uri));
         }
 
         public static T FromStreamContext<T>(StreamContext streamContext) {
@@ -232,7 +234,11 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (streamContext == null)
                 throw new ArgumentNullException("streamContext");
 
-            StreamingSource ss = StreamingSource.Create(componentType);
+            string ext = Utility.GetExtension(streamContext.Uri);
+            StreamingSource ss = StreamingSource.Create(
+                componentType,
+                streamContext.ContentType,
+                ext);
             if (ss == null)
                 throw RuntimeFailure.NoAcceptableStreamingSource(componentType);
 
@@ -247,7 +253,15 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (componentType == null)
                 throw new ArgumentNullException("componentType");
 
-            throw new NotImplementedException();
+            StreamingSource ss = StreamingSource.Create(componentType);
+            if (ss == null)
+                throw RuntimeFailure.NoAcceptableStreamingSource(componentType);
+
+            TextSource ts = ss as TextSource;
+            if (ts == null)
+                return ss.Load(StreamContext.FromText(text), componentType);
+            else
+                return ts.Load(new StringReader(text), componentType);
         }
 
         static T CreateInstanceSafe<T>(ITemplate<T> temp, string name) {
@@ -279,7 +293,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("name");
 
             AppDomain appDomain = AppDomain.CurrentDomain;
-            return (T) ProviderData.GetProvider(appDomain, typeof(T), name, t => t.Activate(values, callback, serviceProvider));
+            // return (T) ProviderData.GetProvider(appDomain, typeof(T), name, t => t.Activate(values, callback, serviceProvider));
+            return (T) appDomain.DescribeProviders().GetProviderInfo(typeof(T), name).Activate(values, callback, serviceProvider);
         }
 
         public static T FromTemplate<T>(string name) {

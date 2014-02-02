@@ -37,12 +37,12 @@ namespace Carbonfrost.Commons.Shared.Runtime  {
             return Utility.SplitText(ref this.rolesCache, this.Roles);
         }
 
-        public override int MatchCriteria(object criteria) {
+        protected override int MatchCriteriaCore(object criteria) {
             if (criteria == null)
                 return 0;
 
             var pp = PropertyProvider.FromValue(criteria);
-			return EnumerateRoles().Contains(pp.GetString("Role"), StringComparer.OrdinalIgnoreCase) ? 1 : 0;
+            return EnumerateRoles().Contains(pp.GetString("Role"), StringComparer.OrdinalIgnoreCase) ? 1 : 0;
         }
     }
 }

@@ -26,104 +26,83 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
     public static partial class Adaptable {
 
-        public static T GetProvider<T>(this AppDomain appDomain, string name) {
+        public static IProviderInfoDescription DescribeProviders(this AppDomain appDomain) {
             if (appDomain == null)
                 throw new ArgumentNullException("appDomain");
 
-            return (T) ProviderData.GetProvidersByLocalName(
-                appDomain, typeof(T), name, t => t.GetValue()).SingleOrThrow(RuntimeFailure.MultipleProviders);
+            return ProviderData.Instance.GetValue(appDomain);
+        }
+
+        public static T GetProvider<T>(this AppDomain appDomain, string name) {
+            return DescribeProviders(appDomain).GetProvider<T>(name);
         }
 
         public static T GetProvider<T>(this AppDomain appDomain, QualifiedName name) {
-            if (appDomain == null)
-                throw new ArgumentNullException("appDomain");
-
-            return (T) ProviderData.GetProvider(appDomain, typeof(T), name, t => t.GetValue());
+            return DescribeProviders(appDomain).GetProvider<T>(name);
         }
 
         public static T GetProvider<T>(this AppDomain appDomain, object criteria) {
-            return (T) appDomain.GetProvider(typeof(T), criteria);
+            return DescribeProviders(appDomain).GetProvider<T>(criteria);
+        }
+
+        public static IEnumerable<T> GetProviders<T>(this AppDomain appDomain, object criteria) {
+            return DescribeProviders(appDomain).GetProviders<T>(criteria);
         }
 
         public static object GetProvider(this AppDomain appDomain, Type providerType, string name) {
-            if (appDomain == null)
-                throw new ArgumentNullException("appDomain");
-
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-
-            return ProviderData.GetProvidersByLocalName(appDomain, providerType, name, t => t.GetValue()).SingleOrThrow(RuntimeFailure.MultipleProviders);
+            return DescribeProviders(appDomain).GetProvider(providerType, name);
         }
 
         public static object GetProvider(this AppDomain appDomain, Type providerType, QualifiedName name) {
-            if (appDomain == null)
-                throw new ArgumentNullException("appDomain");
-
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-
-            return ProviderData.GetProvider(appDomain, providerType, name, t => t.GetValue());
+            return DescribeProviders(appDomain).GetProvider(providerType, name);
         }
 
         public static object GetProvider(this AppDomain appDomain, Type providerType, object criteria) {
-            if (appDomain == null)
-                throw new ArgumentNullException("appDomain");
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-            if (criteria == null)
-                throw new ArgumentNullException("criteria");
-
-            string s = criteria as string;
-            if (s != null)
-                return GetProvider(appDomain, providerType, s);
-
-            QualifiedName t = criteria as QualifiedName;
-            if (t != null)
-                return GetProvider(appDomain, providerType, t);
-
-            return ProviderData.GetProviderUsingCriteria(appDomain, providerType, criteria, u => u.GetValue());
+            return DescribeProviders(appDomain).GetProvider(providerType, criteria);
         }
 
         public static IEnumerable<T> GetProviders<T>(this AppDomain appDomain) {
-            return ProviderData.GetProviders(appDomain, typeof(T)).Cast<T>();
+            return DescribeProviders(appDomain).GetProviders<T>();
         }
 
         public static IEnumerable<object> GetProviders(this AppDomain appDomain, Type providerType) {
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
+            return DescribeProviders(appDomain).GetProviders(providerType);
+        }
 
-            return ProviderData.GetProviders(appDomain, providerType);
+        public static IEnumerable<object> GetProviders(this AppDomain appDomain, Type providerType, object criteria) {
+            return DescribeProviders(appDomain).GetProviders(providerType, criteria);
         }
 
         public static IEnumerable<Type> GetProviderTypes(this AppDomain appDomain) {
-            return ProviderData.GetAll(appDomain);
+            return DescribeProviders(appDomain).GetProviderTypes();
         }
 
         public static MemberInfo GetProviderMember(this AppDomain appDomain, Type providerType, string name) {
-            return ProviderData.GetProvidersByLocalName(appDomain, providerType, name, t => t.Member).SingleOrThrow(RuntimeFailure.MultipleProviders);
+            return DescribeProviders(appDomain).GetProviderMember(providerType, name);
         }
 
         public static MemberInfo GetProviderMember(this AppDomain appDomain, Type providerType, QualifiedName name) {
-            return ProviderData.GetProvider(appDomain, providerType, name, t => t.Member);
+            return DescribeProviders(appDomain).GetProviderMember(providerType, name);
         }
 
         public static IEnumerable<MemberInfo> GetProviderMembers(this AppDomain appDomain, Type providerType) {
-            return ProviderData.GetProviders(appDomain, providerType, t => t.Member);
+            return DescribeProviders(appDomain).GetProviderMembers(providerType);
         }
 
         public static Type GetProviderType(this AppDomain appDomain, Type providerType, string name) {
-            return ProviderData.GetProvidersByLocalName(appDomain, providerType, name, t => t.ValueType).SingleOrThrow(RuntimeFailure.MultipleProviders);
+            return DescribeProviders(appDomain).GetProviderType(providerType, name);
         }
 
         public static Type GetProviderType(this AppDomain appDomain, Type providerType, QualifiedName name) {
-            return ProviderData.GetProviderType(appDomain, providerType, name);
+            return DescribeProviders(appDomain).GetProviderType(providerType, name);
+        }
+
+        public static Type GetProviderType(this AppDomain appDomain, Type providerType, object criteria) {
+            return DescribeProviders(appDomain).GetProviderType(providerType, criteria);
         }
 
         public static IEnumerable<Type> GetProviderTypes(this AppDomain appDomain, Type providerType) {
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-
-            return ProviderData.GetProviderTypes(appDomain, providerType);
+            return DescribeProviders(appDomain).GetProviderTypes(providerType);
         }
 
         public static bool IsProviderType(this Type providerType) {
@@ -134,35 +113,19 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         public static QualifiedName GetProviderName(this AppDomain appDomain, Type providerType, object instance) {
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-            if (instance == null)
-                throw new ArgumentNullException("instance");
-
-            return ProviderData.GetProviderMetadata(appDomain, providerType, t => object.ReferenceEquals(t.Member, instance) || t.IsValue(instance), t => t.Key);
+            return DescribeProviders(appDomain).GetProviderName(providerType, instance);
         }
 
         public static object GetProviderMetadata(this AppDomain appDomain, Type providerType, object instance) {
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-            if (instance == null)
-                throw new ArgumentNullException("instance");
-
-            return ProviderData.GetProviderMetadata(appDomain, providerType, t => object.ReferenceEquals(t.GetValue(), instance), t => t.Metadata);
+            return DescribeProviders(appDomain).GetProviderMetadata(providerType, instance);
         }
 
         public static IEnumerable<QualifiedName> GetProviderNames(this AppDomain appDomain, Type providerType) {
-            if (providerType == null)
-                throw new ArgumentNullException("providerType");
-
-            return ProviderData.GetProviderNames(appDomain, providerType);
+            return DescribeProviders(appDomain).GetProviderNames(providerType);
         }
 
         public static IEnumerable<QualifiedName> GetTemplateNames(this AppDomain appDomain, Type templateType) {
-            if (templateType == null)
-                throw new ArgumentNullException("templateType");
-
-            return TemplateData.GetTemplateNames(appDomain, templateType);
+            return DescribeProviders(appDomain).GetTemplateNames(templateType);
         }
 
     }

@@ -67,6 +67,25 @@ namespace Tests.Runtime {
         }
 
         [Test]
+        public void get_provider_using_attribute_criteria() {
+            var cs = AppDomain.CurrentDomain.GetProvider(typeof(StreamingSource),
+                                                         new { contentType = ContentTypes.BinaryFormatterBase64 });
+            Assert.That(cs,
+                        Is.SameAs(StreamingSources.BinaryFormatterBase64));
+        }
+
+        [Test]
+        public void get_provider_using_assembly_criteria() {
+            var cs = AppDomain.CurrentDomain.GetProviders(typeof(StreamingSource),
+                                                          new { Assembly = typeof(object).Assembly });
+            Assert.That(cs, Is.Empty);
+
+            cs = AppDomain.CurrentDomain.GetProviders(typeof(StreamingSource),
+                                                      new { Assembly = typeof(StreamingSource).Assembly }).ToList();
+            Assert.That(cs, Has.Count.EqualTo(5));
+        }
+
+        [Test]
         public void provider_names_by_qualified_name() {
             var name = NamespaceUri.Create(Xmlns.SharedRuntime2008) + "null";
             var cs1 = AppDomain.CurrentDomain.GetProvider<ComponentStore>(name);

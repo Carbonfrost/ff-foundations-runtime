@@ -41,5 +41,13 @@ namespace Tests.Runtime {
             Assert.That(s, Is.InstanceOf<FileSystemStreamContext>());
             Assert.That(s.Uri, Is.EqualTo(new Uri("./Build", UriKind.Relative)));
         }
+
+        [Test]
+        public void should_get_read_stream_twice_from_text() {
+            StreamContext sc = StreamContext.FromText("abc");
+
+            Assert.That(sc.ReadAllText(), Is.EqualTo("abc"));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("abc"));
+        }
     }
 }

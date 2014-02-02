@@ -1,4 +1,4 @@
-﻿//
+//
 // - LateBoundLog.cs -
 //
 // Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
@@ -18,7 +18,7 @@
 
 using System;
 namespace Carbonfrost.Commons.Shared {
-    
+
     static class LateBoundLog {
 
         private static Action<string> callback;

@@ -35,7 +35,8 @@ namespace Tests.Runtime.Components {
             var asm = a.Load(ComponentTypes.Assembly, uri);
 
             Assert.That(asm, Is.InstanceOf<AssemblyInfo>());
-            Assert.That(asm.Adapt<Assembly>(), Is.EqualTo(GetType().Assembly));
+            Assert.That(asm.Adapt<Assembly>().FullName,
+                        Is.EqualTo(GetType().Assembly.FullName));
         }
 
         [Test]

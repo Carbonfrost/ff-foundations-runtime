@@ -18,6 +18,7 @@
 
 
 using System;
+using System.Reflection;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -25,11 +26,13 @@ namespace Carbonfrost.Commons.Shared.Runtime {
     public class ProvidesAttribute : Attribute {
 
         public Type ProviderType { get; private set; }
+        public MemberTypes MemberTypes { get; set; }
 
         public ProvidesAttribute(Type providerType) {
             if (providerType == null)
                 throw new ArgumentNullException("providerType");
 
+            this.MemberTypes = MemberTypes.All;
             this.ProviderType = providerType;
         }
 

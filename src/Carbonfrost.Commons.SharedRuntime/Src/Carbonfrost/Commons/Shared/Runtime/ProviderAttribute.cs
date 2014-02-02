@@ -16,11 +16,9 @@
 // limitations under the License.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -34,6 +32,11 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public Type ProviderType { get; private set; }
         public string Name { get; set; }
 
+        ProviderValueSource IProviderMetadata.Source { get; set; }
+
+        object IProviderMetadata.Value {
+            get { return this; } }
+
         public ProviderAttribute(Type providerType) {
             if (providerType == null)
                 throw new ArgumentNullException("providerType");
@@ -41,12 +44,22 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             this.ProviderType = providerType;
         }
 
-        public virtual int MatchCriteria(object criteria) {
+        protected virtual int MatchCriteriaCore(object criteria) {
             return ProviderMetadataWrapper.MemberwiseEquals(this, criteria);
+        }
+
+        public int MatchCriteria(object criteria) {
+            return MatchMemberCriteria(criteria) + MatchCriteriaCore(criteria);
+        }
+
+        private int MatchMemberCriteria(object criteria) {
+            return ProviderMetadataWrapper.MatchMemberCriteria(
+                ((IProviderMetadata) this).Source, criteria);
         }
 
         internal IEnumerable<QualifiedName> GetNames(Type type) {
             var qn = Adaptable.GetQualifiedName(type);
+
             if (string.IsNullOrEmpty(this.Name))
                 return new[] { qn };
 

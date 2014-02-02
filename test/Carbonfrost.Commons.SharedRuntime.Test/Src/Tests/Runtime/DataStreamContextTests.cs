@@ -18,6 +18,7 @@
 
 using System;
 using System.Security.Cryptography;
+using System.Text;
 using Carbonfrost.Commons.Shared.Runtime;
 using NUnit.Framework;
 
@@ -84,6 +85,21 @@ namespace Tests.Runtime {
             string bytes = Convert.ToBase64String(data);
             StreamContext sc = StreamContext.FromSource(new Uri("data:" + CONTENT_TYPE + ";base64,"));
             Assert.That(sc.ContentType.ToString(), Is.EqualTo(CONTENT_TYPE));
+        }
+
+        [Test]
+        public void should_get_read_stream_twice() {
+            string bytes = Convert.ToBase64String(Encoding.UTF8.GetBytes("abc"));
+            var sc = StreamContext.FromSource(new Uri("data:text/plain;base64," + bytes));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("abc"));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("abc"));
+        }
+
+        [Test]
+        public void should_get_from_text() {
+            StreamContext sc = StreamContext.FromText("abc");
+            Assert.That(sc.ContentType.ToString(), Is.EqualTo("text/plain; charset=utf-8"));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("abc"));
         }
     }
 }

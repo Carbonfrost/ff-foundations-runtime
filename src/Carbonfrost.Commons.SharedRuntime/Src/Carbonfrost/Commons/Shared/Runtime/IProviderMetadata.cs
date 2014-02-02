@@ -22,6 +22,8 @@ using System;
 namespace Carbonfrost.Commons.Shared.Runtime {
 
     interface IProviderMetadata {
+        object Value { get; }
+        ProviderValueSource Source { get; set; }
         int MatchCriteria(object criteria);
     }
 }

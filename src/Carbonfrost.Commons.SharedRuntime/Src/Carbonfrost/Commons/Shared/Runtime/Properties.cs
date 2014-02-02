@@ -206,7 +206,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             // Review the local storage to determine if it is contained
             requiredType = requiredType ?? typeof(object);
             if (properties.TryGetValue(property, out value)) {
-                if (requiredType.IsInstanceOfType(value))
+                if (requiredType.IsInstanceOfType(value) || value == null)
                     return true;
 
                 // Type coercion

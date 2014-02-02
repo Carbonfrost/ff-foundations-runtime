@@ -22,7 +22,7 @@ using System.Linq;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public sealed class ProviderRegistrationAttribute : Attribute {
 
         private readonly IProviderRegistration registration;

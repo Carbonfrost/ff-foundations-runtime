@@ -71,17 +71,14 @@ namespace Carbonfrost.Commons.Shared {
 
         public Uri Url {
             get { return GetUriVia(PROP_URL); }
-            internal set { this.Properties.SetProperty(PROP_URL, value); }
         }
 
         public Uri PrivateKey {
             get { return GetUriVia(PROP_PRIVATE_KEY); }
-            internal set { this.Properties.SetProperty(PROP_PRIVATE_KEY, value); }
         }
 
         public Uri License {
             get { return GetUriVia(PROP_LICENSE); }
-            internal set { this.Properties.SetProperty(PROP_LICENSE, value); }
         }
 
         public Assembly ExtensionAssembly {
@@ -159,20 +156,10 @@ namespace Carbonfrost.Commons.Shared {
                 () => (new ComponentCollection(
                     this.Assembly.GetReferencedAssemblies().Select(t => Component.Assembly(t)))));
 
-            if (a.ReflectionOnly)
-                this.attributes = new ReflectOnlyAssemblyAttributeProvider(a);
+            if (assembly.ReflectionOnly)
+                this.attributes = new ReflectOnlyAssemblyAttributeProvider(assembly);
             else
-                this.attributes = a;
-
-            var baseAttribute = CustomAttributeProvider.GetCustomAttribute<BaseAttribute>(this.attributes, false);
-            if (baseAttribute != null) {
-                this.Base = baseAttribute.Source;
-            }
-
-            var ua = CustomAttributeProvider.GetCustomAttribute<UrlAttribute>(this.attributes, false);
-            if (ua != null) {
-                this.Url = ua.Url;
-            }
+                this.attributes = assembly;
 
             var sc = CustomAttributeProvider.GetCustomAttribute<SharedRuntimeOptionsAttribute>(this.attributes, false);
             this.options = sc ?? SharedRuntimeOptionsAttribute.Default;
@@ -391,10 +378,16 @@ namespace Carbonfrost.Commons.Shared {
             if (!ScanForProviders)
                 return ProviderRegistration.None;
 
-            var sc = Attribute.GetCustomAttribute(this.assembly, typeof(ProviderRegistrationAttribute)) as ProviderRegistrationAttribute
-                ?? ProviderRegistrationAttribute.Default;
+            var sc = (ProviderRegistrationAttribute[])
+                Attribute.GetCustomAttributes(this.assembly, typeof(ProviderRegistrationAttribute));
 
-            return sc.Registration;
+            var items = sc.Select(t => t.Registration).ToArray();
+            if (items.Length == 0)
+                return ProviderRegistration.Default;
+            else if (items.Length == 1)
+                return items[0];
+            else
+                return new CompositeProviderRegistration(items);
         }
 
         public object GetAdapter(Type targetType) {

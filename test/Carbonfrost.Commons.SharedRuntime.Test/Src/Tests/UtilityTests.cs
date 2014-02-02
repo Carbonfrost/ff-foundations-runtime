@@ -1,7 +1,7 @@
+﻿//
+// - UtilityTests.cs -
 //
-// - FallbackBehavior.cs -
-//
-// Copyright 2005, 2006, 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +17,16 @@
 //
 
 using System;
+using Carbonfrost.Commons.Shared;
+using NUnit.Framework;
 
-namespace Carbonfrost.Commons.Shared.Runtime {
+namespace Tests {
 
-    public enum FallbackBehavior {
-        CreateDefault,
-        None,
-        ThrowException,
+    public class UtilityTests {
+
+        [Test]
+        public void match_extension_absolute_path() {
+            Assert.That(Utility.GetExtension(new Uri("https://example.com/download.csv#row-3")), Is.EqualTo(".csv"));
+        }
     }
 }

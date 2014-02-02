@@ -123,8 +123,7 @@ namespace Carbonfrost.Commons.Shared {
 
             if (disposing) {
                 this.baseStream.Flush();
-                this.baseStream.Close();
-                this.baseStream.Dispose();
+                // Don't close base stream
             }
 
             base.Dispose(disposing);

@@ -25,7 +25,7 @@ using Carbonfrost.Commons.ComponentModel;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    internal abstract class ProviderValueSource {
+    internal abstract class ProviderValueSource : IProviderInfo {
 
         public abstract object GetValue();
         public abstract object Activate(IEnumerable<KeyValuePair<string, object>> arguments,
@@ -34,18 +34,33 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         public abstract Type ValueType { get; }
         public abstract MemberInfo Member { get; }
-        public QualifiedName Key { get; private set; }
+
+        public virtual Assembly Assembly {
+            get {
+                return this.Member.DeclaringType.Assembly;
+            }
+        }
 
         public Type ProviderType { get; private set; }
         public IProviderMetadata Metadata { get; set; }
 
         protected ProviderValueSource(Type providerType, QualifiedName key) {
             this.ProviderType = providerType;
-            this.Key = key;
+            this.Name = key;
         }
 
         // Gets whether the specified instance corresponds to this (if it is
         // a singleton provider value source, not a factory one)
         public abstract bool IsValue(object instance);
+
+        public QualifiedName Name { get; private set; }
+
+        public Type Type { get { return this.ValueType; } }
+
+        object IProviderInfo.Metadata {
+            get {
+                return this.Metadata.Value;
+            }
+        }
     }
 }
