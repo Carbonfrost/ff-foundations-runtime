@@ -36,6 +36,7 @@ namespace Carbonfrost.Commons.Shared {
         static readonly Regex VALID_ID = new Regex("^[a-zA-Z0-9_.-]+$");
         static readonly Assembly THIS_ASSEMBLY = typeof(Utility).Assembly;
         static readonly Assembly CORLIB = typeof(object).Assembly;
+        static readonly Dictionary<Assembly, bool> SCANNABLE = new Dictionary<Assembly, bool>();
 
         public static readonly IXmlNamespaceResolver NullNamespaceResolver = new NullNamespaceResolverImpl();
         public static readonly IEqualityComparer<Type> EquivalentComparer = new ExtendedTypeComparer();
@@ -411,19 +412,24 @@ namespace Carbonfrost.Commons.Shared {
         }
 
         public static bool IsScannableAssembly(Assembly a) {
-            if (a.ReflectionOnly)
-                return false;
+            return SCANNABLE.GetValueOrCache(
+                a,
+                () => {
 
-            if (a == THIS_ASSEMBLY)
-                return true;
+                    if (a.ReflectionOnly)
+                        return false;
 
-            bool isCorlib = a.GetName().GetPublicKey()
-                .SequenceEqual(CORLIB.GetName().GetPublicKey());
+                    if (a == THIS_ASSEMBLY)
+                        return true;
 
-            if (isCorlib)
-                return false;
+                    bool isCorlib = a.GetName().GetPublicKey()
+                        .SequenceEqual(CORLIB.GetName().GetPublicKey());
 
-            return a.GetReferencedAssemblies().Any(t => t.Name == THIS_ASSEMBLY.GetName().Name);
+                    if (isCorlib)
+                        return false;
+
+                    return a.GetReferencedAssemblies().Any(t => t.Name == THIS_ASSEMBLY.GetName().Name);
+                });
         }
 
         public static string Camel(string name) {

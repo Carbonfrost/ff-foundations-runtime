@@ -123,8 +123,18 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (assembly == null)
                 throw new ArgumentNullException("assembly");
 
-            return assembly.GetAttribute<SharedRuntimeOptionsAttribute>()
-                ?? SharedRuntimeOptionsAttribute.Default;
+            var attr = assembly.GetAttribute<SharedRuntimeOptionsAttribute>();
+            if (attr == null) {
+
+                // Optimizations for system assemblies
+                if (Utility.IsScannableAssembly(assembly))
+                    return SharedRuntimeOptionsAttribute.Default;
+                else
+                    return SharedRuntimeOptionsAttribute.Optimized;
+
+            } else {
+                return attr;
+            }
         }
 
         public static IEnumerable<Type> FilterTypes(

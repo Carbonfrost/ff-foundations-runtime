@@ -24,6 +24,9 @@ namespace Carbonfrost.Commons.Shared.Runtime {
     public sealed class SharedRuntimeOptionsAttribute : Attribute {
 
         internal static readonly SharedRuntimeOptionsAttribute Default = new SharedRuntimeOptionsAttribute();
+        internal static readonly SharedRuntimeOptionsAttribute Optimized = new SharedRuntimeOptionsAttribute {
+            Optimizations = SharedRuntimeOptimizations.DisableScanning
+        };
 
         public SharedRuntimeOptimizations Optimizations { get; set; }
 

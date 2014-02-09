@@ -43,7 +43,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             foreach (var attr in attrs)
                 context.DefineRootProvider(attr.ProviderType);
         }
-        
+
         private void ExtractFromMethods(ProviderRegistrationContext context, Type type) {
             foreach (MethodInfo method in type.GetMethods()) {
                 if (!method.IsStatic)
@@ -70,7 +70,13 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 } else {
                     foreach (var pa in attrs) {
                         foreach (var qn in pa.GetNames(field.DeclaringType, field.Name)) {
-                            context.DefineProvider(qn, pa.ProviderType, field, pa);
+                            try {
+                                context.DefineProvider(qn, pa.ProviderType, field, pa);
+
+                            } catch (Exception ex) {
+                                var fullName = field.DeclaringType.FullName + "." + field.Name;
+                                RuntimeWarning.InvalidProviderDeclared(fullName, ex);
+                            }
                         }
                     }
                 }
@@ -84,7 +90,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 if (attrs.Length > 0) {
                     foreach (var pa in attrs) {
                         foreach (var qn in pa.GetNames(type)) {
-                            context.DefineProvider(qn, pa.ProviderType, type, pa);
+                            try {
+                                context.DefineProvider(qn, pa.ProviderType, type, pa);
+
+                            } catch (Exception ex) {
+                                RuntimeWarning.InvalidProviderDeclared(type.FullName, ex);
+                            }
                         }
                     }
                 }

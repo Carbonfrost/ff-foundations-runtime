@@ -27,7 +27,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         static IDictionary<Type, IStatusAppender> map;
 
         static IStatusAppender InvokeFactory(Type type) {
-            return StatusAppender.Null;
+            return new StatusAppender();
         }
 
         public static IStatusAppender Synchronized(IStatusAppender statusAppender) {

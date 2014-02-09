@@ -271,5 +271,13 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public static ArgumentException QualifiedNameCannotBeGeneratedFromConstructed(string argumentName) {
             return Failure.Prepare(new ArgumentException(SR.QualifiedNameCannotBeGeneratedFromConstructed(), argumentName));
         }
+
+        public static ArgumentException InvalidProviderInstanceType(string argumentName) {
+            return Failure.Prepare(new ArgumentException(SR.InvalidProviderInstanceType(), argumentName));
+        }
+
+        public static ArgumentException InvalidProviderFieldOrMethod(string argumentName) {
+            return Failure.Prepare(new ArgumentException(SR.InvalidProviderFieldOrMethod(), argumentName));
+        }
     }
 }

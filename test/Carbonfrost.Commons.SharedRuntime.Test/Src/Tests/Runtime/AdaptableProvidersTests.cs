@@ -109,6 +109,21 @@ namespace Tests.Runtime {
             Assert.That(cs1, Is.SameAs(ComponentStore.Null));
             Assert.That(cs2, Is.SameAs(ComponentStore.Null));
         }
+
+        [Test]
+        public void provider_illegal_base_type() {
+            // Test for illegal providers
+            var s = AppDomain.CurrentDomain.GetProvider<IRuntimeComponent>("TestComponent2");
+            Assert.That(s, Is.Null);
+
+            var sa = StatusAppender.ForType(typeof(Adaptable));
+            Assert.That(sa.Children.Count, Is.EqualTo(1));
+            Assert.That(sa.Children[0].Message,
+                        Is.StringMatching(@"Invalid provider `Tests\.Runtime\.IllegalComponent': Given .+"));
+        }
     }
+
+    [RuntimeComponentUsage(Name = "TestComponent2")]
+    public class IllegalComponent {}
 }
 

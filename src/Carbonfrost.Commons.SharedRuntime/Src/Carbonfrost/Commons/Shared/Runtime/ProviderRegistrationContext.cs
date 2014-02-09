@@ -16,7 +16,6 @@
 // limitations under the License.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,9 +37,6 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         internal ProviderRegistrationContext(Assembly assembly) {
             this.Assembly = assembly;
         }
-
-        // TODO Validate members - should be static, public,
-        // other constraints
 
         // TODO Validate root providers
 
@@ -66,6 +62,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("providerType");
             if (providerInstanceType == null)
                 throw new ArgumentNullException("providerInstanceType");
+            if (providerInstanceType.IsAbstract || !providerType.IsAssignableFrom(providerInstanceType))
+                throw RuntimeFailure.InvalidProviderInstanceType("providerInstanceType");
 
             var qn = GetName(name, providerInstanceType, providerInstanceType.Name);
 
@@ -84,6 +82,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("providerType");
             if (field == null)
                 throw new ArgumentNullException("field");
+            if (!field.IsStatic
+                || !providerType.IsAssignableFrom(field.FieldType)) {
+                throw RuntimeFailure.InvalidProviderFieldOrMethod("field");
+            }
 
             var qn = GetName(name, field.DeclaringType, field.Name);
 
@@ -103,6 +105,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("providerType");
             if (factoryMethod == null)
                 throw new ArgumentNullException("factoryMethod");
+            if (!factoryMethod.IsStatic
+                || !providerType.IsAssignableFrom(factoryMethod.ReturnType)) {
+                throw RuntimeFailure.InvalidProviderFieldOrMethod("factoryMethod");
+            }
 
             var qn = GetName(name, factoryMethod.DeclaringType, factoryMethod.Name);
             var methodResult = new ProviderMethod(factoryMethod,

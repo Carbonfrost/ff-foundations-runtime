@@ -41,7 +41,20 @@ namespace Tests.Runtime.Components {
     }
 
     [RuntimeComponentUsage(Name = "TestComponent")]
-    public class MyComponent {}
+    public class MyComponent : IRuntimeComponent {
 
+        Uri IRuntimeComponent.Source {
+            get { return null; } }
+
+        string IRuntimeComponent.ComponentType {
+            get { return null; } }
+
+        ComponentName IRuntimeComponent.ComponentName {
+            get { return null; } }
+
+        ComponentCollection IRuntimeComponent.Dependencies {
+            get { return null; } }
+
+    }
 
 }

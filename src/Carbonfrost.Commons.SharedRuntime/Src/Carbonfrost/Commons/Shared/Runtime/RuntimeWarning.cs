@@ -56,5 +56,11 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public static void AssemblyInfoFilterFailed(IStatusAppender sa, AssemblyName name, Type attrType, Exception error) {
             sa.AppendError(SR.AssemblyInfoFilterFailed(attrType, name), error);
         }
+
+        public static void InvalidProviderDeclared(string fullName, Exception ex) {
+            var sa = StatusAppender.ForType(typeof(Adaptable));
+            sa.AppendError(SR.InvalidProviderDeclared(fullName, ex.Message), ex);
+        }
+
     }
 }
