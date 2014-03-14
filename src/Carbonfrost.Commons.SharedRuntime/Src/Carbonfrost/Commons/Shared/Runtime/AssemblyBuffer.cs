@@ -19,9 +19,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -40,10 +42,32 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
         }
 
+        static void AddProbedAssemblies(HashSet<AssemblyName> pendingAssemblyNames) {
+            var probe = AssemblyProbe.CreateProbe();
+
+            Traceables.ProbingForAssemblies(probe.GetType());
+
+            foreach (var t in probe.EnumerateAssemblyFiles()) {
+
+                // TODO Consider error handling and tracing assembly names
+
+                try {
+                    var asm = AssemblyName.GetAssemblyName(t);
+                    pendingAssemblyNames.Add(asm);
+
+                } catch (FileNotFoundException) {
+                } catch (FileLoadException) {
+                } catch (SecurityException) {
+                } catch (BadImageFormatException) {
+                }
+            }
+        }
+
         private static IEnumerable<Assembly> EnumerateAppDomain() {
             var comparer = new AssemblyNameComparer();
             var assemblies = new Dictionary<AssemblyName, Assembly>(comparer);
             var pendingAssemblyNames = new HashSet<AssemblyName>(comparer);
+            bool probed = false;
 
             var domain = AppDomain.CurrentDomain;
             domain.AssemblyLoad += (_, args) => {
@@ -63,6 +87,11 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             while (pendingAssemblyNames.Count > 0) {
                 AssemblyName any = pendingAssemblyNames.First();
                 pendingAssemblyNames.Remove(any);
+
+                if (pendingAssemblyNames.Count == 0 && !probed) {
+                    probed = true;
+                    AddProbedAssemblies(pendingAssemblyNames);
+                }
 
                 if (assemblies.ContainsKey(any))
                     continue;

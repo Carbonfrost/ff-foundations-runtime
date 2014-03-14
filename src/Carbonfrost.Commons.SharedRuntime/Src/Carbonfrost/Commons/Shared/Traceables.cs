@@ -24,7 +24,7 @@ namespace Carbonfrost.Commons.Shared {
     static class Traceables {
 
         // TODO Move to localization
-        
+
         [Conditional("DEBUG")]
         public static void TypeReferenceResolvingType(string fullTypeName) {
             LateBoundLog.Fail(string.Format("Type reference resolving type '{0}'.", fullTypeName)); // $NON-NLS-1
@@ -32,7 +32,7 @@ namespace Carbonfrost.Commons.Shared {
 
         [Conditional("DEBUG")]
         public static void TypeReferenceResolveError(Exception ex) {
-            LateBoundLog.Fail(string.Format("An exception occurred while resolving the type.", ex)); // $NON-NLS-1
+            LateBoundLog.Fail(string.Format("An exception occurred while resolving the type: {0}", ex)); // $NON-NLS-1
         }
 
         [Conditional("DEBUG")]
@@ -40,6 +40,11 @@ namespace Carbonfrost.Commons.Shared {
                                                           Exception ex) {
             LateBoundLog.Fail(string.Format("Failed to initialize custom root service provider type `{0}': {1}.", // $NON-NLS-1
                                             rootType, ex));
+        }
+
+        [Conditional("DEBUG")]
+        public static void ProbingForAssemblies(Type type) {
+            LateBoundLog.Fail(string.Format("Probing for assemblies ({0})", type)); // $NON-NLS-1
         }
     }
 }

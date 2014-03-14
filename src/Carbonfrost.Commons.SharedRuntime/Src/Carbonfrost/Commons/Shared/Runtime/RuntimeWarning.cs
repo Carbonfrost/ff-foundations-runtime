@@ -27,6 +27,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
     static class RuntimeWarning {
 
+        public static IStatusAppender AssemblyInfo {
+            get {
+                return StatusAppender.ForType(typeof(AssemblyInfo));
+            }
+        }
+
         public static void NotProviderType(this IStatusAppender s,
                                            Type providerType,
                                            string description) {
