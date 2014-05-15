@@ -30,8 +30,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
     [TypeConverter(typeof(StreamContextConverter))]
     public abstract class StreamContext : IUriContext {
 
-        private static readonly StreamContext s_null = new NullStreamContext();
-        private static readonly StreamContext s_invalid = new InvalidStreamContext();
+        public static readonly StreamContext Null = new NullStreamContext();
+        public static readonly StreamContext Invalid = new InvalidStreamContext();
 
         [SelfDescribingPriority(PriorityLevel.Medium)]
         public abstract CultureInfo Culture { get; }
@@ -53,8 +53,6 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             get { return Utility.GetEncodingFromContentType(this.ContentType.Parameters.GetValueOrDefault("charset")); }
         }
 
-        public static StreamContext Invalid { get { return s_invalid; } }
-
         [SelfDescribingPriority(PriorityLevel.Low)]
         public virtual bool IsAnonymous { get { return false; } }
 
@@ -63,8 +61,6 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         [SelfDescribingPriority(PriorityLevel.Low)]
         public virtual bool IsMultipart { get { return false; } }
-
-        public static StreamContext Null { get { return s_null; } }
 
         [SelfDescribingPriority(PriorityLevel.High)]
         public abstract Uri Uri { get; }
@@ -331,6 +327,21 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
                     case "null": // $NON-NLS-1
                         return StreamContext.Null;
+
+                    case "stdout": // $NON-NLS-1
+                        return new StreamStreamContext(new Uri("stdout://"),
+                                                       Console.OpenStandardOutput(),
+                                                       Console.OutputEncoding);
+
+                    case "stderr": // $NON-NLS-1
+                        return new StreamStreamContext(new Uri("stderr://"),
+                                                       Console.OpenStandardError(),
+                                                       Console.OutputEncoding);
+
+                    case "stdin": // $NON-NLS-1
+                        return new StreamStreamContext(new Uri("stdin://"),
+                                                       Console.OpenStandardInput(),
+                                                       Console.InputEncoding);
 
                     case "stream": // $NON-NLS-1
                         throw RuntimeFailure.ForbiddenStreamStreamContext();

@@ -55,5 +55,18 @@ namespace Tests.Runtime {
             Assert.That(StreamingSource.Create(typeof(object), ContentType.Parse(ContentTypes.BinaryFormatter)),
                         Is.SameAs(StreamingSources.BinaryFormatter));
         }
+
+        [Test]
+        public void LoadByHydration_should_initialize_properties() {
+            var sc = StreamingSources.Properties;
+            var properties = new Properties();
+            sc.LoadByHydration(StreamContext.FromText("a=b\nc=d"), properties);
+
+            Assert.That(properties["a"], Is.EqualTo("b"));
+            Assert.That(properties["c"], Is.EqualTo("d"));
+        }
+
     }
+
+
 }

@@ -49,6 +49,30 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
         }
 
+        public override void Load(TextReader reader, object instance) {
+            if (reader == null)
+                throw new ArgumentNullException("reader");
+            if (instance == null)
+                throw new ArgumentNullException("instance");
+            if (!(instance is IProperties))
+                throw Failure.NotInstanceOf("instance", instance, typeof(IProperties));
+
+            var props = (Properties) Load(reader, typeof(Properties));
+            props.CopyTo((IProperties) instance);
+        }
+
+        public override void Load(StreamContext inputSource, object instance) {
+            if (inputSource == null)
+                throw new ArgumentNullException("inputSource");
+            if (instance == null)
+                throw new ArgumentNullException("instance");
+            if (!(instance is IProperties))
+                throw Failure.NotInstanceOf("instance", instance, typeof(IProperties));
+
+            var props = (Properties) Load(inputSource, typeof(Properties));
+            props.CopyTo((IProperties) instance);
+        }
+
         public override void Save(TextWriter writer, object value) {
             if (writer == null)
                 throw new ArgumentNullException("writer");

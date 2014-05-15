@@ -17,6 +17,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Carbonfrost.Commons.Shared.Runtime;
@@ -85,6 +86,7 @@ namespace Tests.Runtime {
             string bytes = Convert.ToBase64String(data);
             StreamContext sc = StreamContext.FromSource(new Uri("data:" + CONTENT_TYPE + ";base64,"));
             Assert.That(sc.ContentType.ToString(), Is.EqualTo(CONTENT_TYPE));
+            Assert.That(sc.Uri.ToString(), Contains.Substring(";base64"));
         }
 
         [Test]
@@ -99,7 +101,31 @@ namespace Tests.Runtime {
         public void should_get_from_text() {
             StreamContext sc = StreamContext.FromText("abc");
             Assert.That(sc.ContentType.ToString(), Is.EqualTo("text/plain; charset=utf-8"));
+            Assert.That(() => sc.ContentType.Parameters["base64"], Throws.InstanceOf<KeyNotFoundException>());
             Assert.That(sc.ReadAllText(), Is.EqualTo("abc"));
         }
+
+        [Test]
+        public void should_allow_optional_content_type_and_uri_encoding() {
+            var sc = StreamContext.FromSource(new Uri("data:,A%20brief%20note"));
+            Assert.That(sc.ContentType.ToString(), Is.EqualTo("text/plain"));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("A brief note"));
+        }
+
+        [Test]
+        public void should_allow_uri_encoding() {
+            var sc = StreamContext.FromSource(new Uri("data:text/p,A%20brief%20note"));
+            Assert.That(sc.ContentType.ToString(), Is.EqualTo("text/p"));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("A brief note"));
+            Assert.That(sc.Uri.OriginalString, Is.EqualTo("data:text/p,A%20brief%20note"));
+        }
+
+        [Test]
+        public void should_allow_non_standard_non_uri() {
+            var sc = StreamContext.FromSource(new Uri("data:text/html,Encode s p aces"));
+            Assert.That(sc.ReadAllText(), Is.EqualTo("Encode s p aces"));
+            Assert.That(sc.Uri.OriginalString, Is.EqualTo("data:text/html,Encode%20s%20p%20aces"));
+        }
+
     }
 }

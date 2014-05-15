@@ -20,6 +20,8 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -28,13 +30,16 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         private readonly string baseUri;
         private readonly MemoryStream data;
         private readonly ContentType contentType;
+        private readonly bool isBase64;
 
         // "data:application/octet-stream;base64,"
+        // data:[<MIME-type>][;charset=<encoding>][;base64],<data>
 
         public DataStreamContext(DataStreamContext source, ContentType contentType) {
             this.contentType = contentType;
             this.baseUri = string.Format("data:{0};base64,", this.contentType);
             this.data = new MemoryStream();
+            this.isBase64 = true;
             source.data.CopyTo(this.data);
         }
 
@@ -42,35 +47,38 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             this.contentType = contentType;
             this.baseUri = string.Format("data:{0};base64,", this.contentType);
             this.data = data;
+            this.isBase64 = true;
         }
 
         public DataStreamContext(Uri u) {
-            string[] parts = Utility.SplitInTwo(u.PathAndQuery, ';');
+            string[] parts = Utility.SplitInTwo(u.PathAndQuery, ',');
             if (parts.Length != 2)
                 throw RuntimeFailure.NotValidDataUri();
 
-            this.contentType = ContentType.Parse(parts[0]);
-            string[] dataParts = Utility.SplitInTwo(parts[1], ',');
+            var ct = Regex.Replace(parts[0], ";base64", string.Empty);
+            if (ct.Length == 0)
+                this.contentType = new ContentType("text", "plain");
+            else
+                this.contentType = ContentType.Parse(ct);
 
             byte[] buffer;
-            string encoding = "base64";
 
-            if (dataParts.Length == 1) {
-                buffer = Convert.FromBase64String(dataParts[0]);
+            this.isBase64 = ct.Length < parts[0].Length; // implied by replacement
+            if (this.isBase64)
+                buffer = Convert.FromBase64String(parts[1]);
+            else
+                buffer = System.Text.Encoding.ASCII.GetBytes(WebUtility.UrlDecode(parts[1]));
 
-            } else {
-                encoding = dataParts[0];
-
-                // Only base64 is supported by RFC
-                if (encoding == "base64")
-                    buffer = Convert.FromBase64String(dataParts[1]);
-                else
-                    throw RuntimeFailure.NotValidDataUri();
-            }
-
-            this.baseUri = string.Format("data:{0};{1},", this.contentType, encoding);
+            this.baseUri = string.Concat("data:",
+                                         this.contentType,
+                                         this.isBase64 ? ";base64" : string.Empty,
+                                         ",");
             this.data = new MemoryStream(buffer.Length);
             this.data.Write(buffer, 0, buffer.Length);
+        }
+
+        private static ContentType ParseContentType(string text) {
+            return ContentType.Parse(text);
         }
 
         public override ContentType ContentType {
@@ -104,7 +112,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         string EncodedBytes() {
-            return Convert.ToBase64String(this.data.ToArray());
+            if (this.isBase64)
+                return Convert.ToBase64String(this.data.ToArray());
+            else {
+                string text = System.Text.Encoding.ASCII.GetString(this.data.ToArray());
+                return WebUtility.UrlEncode(text).Replace("+", "%20");
+            }
         }
     }
 }

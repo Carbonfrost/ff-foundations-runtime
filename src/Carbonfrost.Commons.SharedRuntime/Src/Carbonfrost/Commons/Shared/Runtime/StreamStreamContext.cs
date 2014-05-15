@@ -28,9 +28,17 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         private readonly Stream stream;
         private readonly Encoding encoding;
+        private readonly Uri uri;
 
-        public StreamStreamContext(Stream stream, Encoding encoding) {
-            if (stream == null) { throw new ArgumentNullException("stream"); } // $NON-NLS-1
+        public StreamStreamContext(Stream stream, Encoding encoding)
+            : this(new Uri("stream://"), stream, encoding) {
+        }
+
+        public StreamStreamContext(Uri uri, Stream stream, Encoding encoding) {
+            if (stream == null)
+                throw new ArgumentNullException("stream");
+
+            this.uri = uri;
             this.stream = stream;
             this.encoding = encoding;
         }
@@ -49,7 +57,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         public override Uri Uri {
-            get { return new Uri("stream://"); }// $NON-NLS-1
+            get { return uri; }
         }
 
         public override StreamContext ChangePath(string relativePath) {

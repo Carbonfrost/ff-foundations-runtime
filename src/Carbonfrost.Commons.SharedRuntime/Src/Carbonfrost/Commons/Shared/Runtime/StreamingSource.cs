@@ -19,6 +19,7 @@
 using System;
 using System.Linq;
 
+using System.Reflection;
 using Carbonfrost.Commons.ComponentModel;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
@@ -37,5 +38,20 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         public abstract object Load(StreamContext inputSource, Type instanceType);
         public abstract void Save(StreamContext outputTarget, object value);
+
+        public virtual void Load(StreamContext inputSource, object instance) {
+            if (inputSource == null)
+                throw new ArgumentNullException("inputSource");
+            if (instance == null)
+                throw new ArgumentNullException("instance");
+
+            LoadByHydration(inputSource, instance);
+        }
+
+        internal void LoadByHydration(StreamContext inputSource, object instance) {
+            var copyFrom = Load(inputSource, instance.GetType());
+            Template.Copy(copyFrom, instance);
+        }
+
     }
 }
