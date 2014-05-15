@@ -22,8 +22,8 @@ namespace Carbonfrost.Commons.Shared {
 
     static class Xmlns {
 
-        public const string ShareableCodeMetadata2011 = "http://ns.shareablecode.org/2011/metadata";
-        public const string SharedRuntime2008 = "http://ns.carbonfrost.com/2008/commons/sharedruntime";
+        public const string ShareableCodeMetadata2011 = "http://ns.typedescriptor.org/2011/share";
+        public const string SharedRuntime2008 = "http://ns.carbonfrost.com/commons/sharedruntime";
 
     }
 }
