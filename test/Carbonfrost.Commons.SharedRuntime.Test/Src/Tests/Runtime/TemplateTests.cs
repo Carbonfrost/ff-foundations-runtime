@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using System.Reflection;
 using Carbonfrost.Commons.ComponentModel.Annotations;
 using Carbonfrost.Commons.Shared;
 using Carbonfrost.Commons.Shared.Runtime;
@@ -80,6 +81,34 @@ namespace Tests.Runtime {
 
             Assert.That(sb.ErrorCode, Is.EqualTo(0xdead));
             Assert.That(sb.Component, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void initialize_from_instance_uses_CopyFrom() {
+            var properties = new Properties {
+                { "a", "c" },
+                { "b", "d" },
+            };
+
+            var t = Template.Create(properties);
+            var sb = new Properties();
+            t.Initialize(sb);
+
+            Assert.That(sb.GetString("a"), Is.EqualTo("c"));
+            Assert.That(sb.GetString("b"), Is.EqualTo("d"));
+        }
+
+        [Test]
+        public void Create_untyped_initializes_from_any_instance() {
+            var properties = new Properties {
+                { "a", "c" },
+                { "b", "d" },
+            };
+
+            var sb = (Properties) Template.Copy(properties, new Properties());
+
+            Assert.That(sb.GetString("a"), Is.EqualTo("c"));
+            Assert.That(sb.GetString("b"), Is.EqualTo("d"));
         }
 
         [Test]

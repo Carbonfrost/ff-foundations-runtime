@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -31,9 +32,39 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return new ThunkTemplate<T>(initializer);
         }
 
+        public static T MemberwiseCopy<T>(object source, T destination) {
+            if (source == null)
+                throw new ArgumentNullException("source");
+            if (object.ReferenceEquals(destination, null))
+                throw new ArgumentNullException("destination");
+            var props = Properties.FromValue(source).ToArray();
+            Activation.Initialize(destination, props);
+            return destination;
+        }
+
+        public static T Copy<T>(object source, T destination) {
+            if (source == null)
+                throw new ArgumentNullException("source");
+            if (object.ReferenceEquals(destination, null))
+                throw new ArgumentNullException("destination");
+            var copyFromMethod = FindCopyFromMethod(source.GetType());
+            if (copyFromMethod == null) {
+                return MemberwiseCopy(source, destination);
+            } else {
+                copyFromMethod.Invoke(destination, new object[] {
+                                          source
+                                      });
+                return destination;
+            }
+        }
+
         public static ITemplate<T> Create<T>(T initializer) {
-			if (object.Equals(initializer, null))
-				return new NullTemplate<T>();
+            if (object.Equals(initializer, null))
+                return new NullTemplate<T>();
+
+            var copyFromMethod = FindCopyFromMethod(typeof(T));
+            if (copyFromMethod != null)
+                return new InvokerTemplate<T>(copyFromMethod, initializer);
 
             var props = Properties.FromValue(initializer).ToArray();
             return Create<T>(t => Activation.Initialize(t, props));
@@ -99,9 +130,35 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return (ITemplate<T>) TemplateData.GetTemplate(AppDomain.CurrentDomain, typeof(T), name);
         }
 
+        static MethodInfo FindCopyFromMethod(Type type) {
+            try {
+                // Look for CopyFrom method
+                return type.GetMethod(
+                    "CopyFrom", BindingFlags.Public | BindingFlags.Instance, null,
+                    new[] { type }, null);
+            } catch (AmbiguousMatchException) {
+                return null;
+            }
+        }
+
         sealed class NullTemplate<T> : ITemplate<T> {
 
             public void Initialize(T value) {
+            }
+        }
+
+        sealed class InvokerTemplate<T> : ITemplate<T> {
+
+            private readonly MethodInfo initializer;
+            private readonly T copyFromValue;
+
+            public InvokerTemplate(MethodInfo initializer, T copyFromValue) {
+                this.initializer = initializer;
+                this.copyFromValue = copyFromValue;
+            }
+
+            public void Initialize(T value) {
+                initializer.Invoke(value, new object[] { copyFromValue });
             }
         }
 
