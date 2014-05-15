@@ -20,6 +20,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -28,14 +29,12 @@ using Carbonfrost.Commons.ComponentModel.Annotations;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    [StandardsCompliant("RFC 2046")]
     [Serializable]
     [TypeConverter(typeof(ContentTypeConverter))]
     [Builder(typeof(ContentTypeBuilder))]
     public sealed class ContentType : IEquatable<ContentType> {
 
-        // TODO This should be a read-only dictionary
-        private readonly IDictionary<string, string> parameters;
+        private readonly ReadOnlyDictionary<string, string> parameters;
 
         readonly static HashSet<string> VALID_TYPES = new HashSet<string> {
             "application", "message", "text", "audio", "video", "image"
@@ -58,7 +57,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
         }
 
-        public IDictionary<string, string> Parameters {
+        public IReadOnlyDictionary<string, string> Parameters {
             get { return parameters; }
         }
 
@@ -77,13 +76,16 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             this.Subtype = subtype;
             this.Type = type;
 
+            IDictionary<string, string> dict;
+
             if (parameters == null)
-                this.parameters = new Dictionary<string, string>();
+                dict = new Dictionary<string, string>();
             else {
-                this.parameters = new Dictionary<string, string>();
+                dict = new Dictionary<string, string>();
                 foreach (var kvp in parameters)
-                    this.parameters.Add(kvp);
+                    dict.Add(kvp);
             }
+            this.parameters = new ReadOnlyDictionary<string, string>(dict);
         }
 
         static Exception CheckArguments(string type, string subtype,

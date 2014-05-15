@@ -19,5 +19,11 @@
 using System;
 using Carbonfrost.Commons.ComponentModel.Annotations;
 
-[assembly: License("http://carbonfrost.com/cpl")]
+[assembly: License("http://www.apache.org/licenses/LICENSE-2.0")]
 [assembly: Url("http://carbonfrost.com/f5/sharedruntime")]
+
+// For ContentType
+[assembly: StandardsCompliant("http://tools.ietf.org/html/rfc2046")]
+
+// For data: URIs
+[assembly: StandardsCompliant("http://tools.ietf.org/html/rfc2397")]

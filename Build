@@ -42,6 +42,7 @@
       
       <assembly target="bin/net40/debug/x86/Carbonfrost.Commons.SharedRuntime.dll"
                 privateKey="F5NonCommercial.snk">
+        <runtime version="4.5.1" />
         <sources>
           <include name="src/Carbonfrost.Commons.SharedRuntime/**/*.cs" />
         </sources>

@@ -20,7 +20,7 @@ using System;
 
 namespace Carbonfrost.Commons.Shared {
 
-    public static class Xmlns {
+    static class Xmlns {
 
         public const string ShareableCodeMetadata2011 = "http://ns.shareablecode.org/2011/metadata";
         public const string SharedRuntime2008 = "http://ns.carbonfrost.com/2008/commons/sharedruntime";
