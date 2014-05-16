@@ -64,32 +64,15 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public abstract Type GetAdapterType(Type adapteeType, string adapterRoleName);
 
         public static IAdapterFactory Compose(params IAdapterFactory[] items) {
-            if (items == null)
-                throw new ArgumentNullException("items");
-
-            if (items.Length == 0)
-                return Null;
-
-            else if (items.Length == 1)
-                return items[1];
-
-            else
-                return new CompositeAdapterFactoryImpl((IAdapterFactory[]) items.Clone());
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeAdapterFactoryImpl(i),
+                                            Null);
         }
 
         public static IAdapterFactory Compose(IEnumerable<IAdapterFactory> items) {
-            if (items == null)
-                throw new ArgumentNullException("items");
-
-            var all = items.ToArray();
-            if (all.Length == 0)
-                return Null;
-
-            else if (all.Length == 1)
-                return all[1];
-
-            else
-                return new CompositeAdapterFactoryImpl(all);
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeAdapterFactoryImpl(i),
+                                            Null);
         }
 
         public static IAdapterFactory FromAssembly(Assembly assembly) {

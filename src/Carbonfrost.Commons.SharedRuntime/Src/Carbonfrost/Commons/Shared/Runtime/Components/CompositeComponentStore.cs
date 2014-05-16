@@ -25,10 +25,10 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
 
     sealed class CompositeComponentStore : ComponentStore {
 
-        readonly ComponentStore[] stores;
+        readonly IReadOnlyCollection<ComponentStore> stores;
 
-        public CompositeComponentStore(IEnumerable<ComponentStore> stores) {
-            this.stores = this.stores.ToArray();
+        public CompositeComponentStore(IReadOnlyCollection<ComponentStore> stores) {
+            this.stores = stores;
         }
 
         public override ICollection<string> ComponentTypes {

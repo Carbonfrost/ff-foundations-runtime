@@ -475,6 +475,22 @@ namespace Carbonfrost.Commons.Shared {
             Match m = Regex.Match(file, @"\.\w+$");
             return m.Success ? m.Groups[0].Value : string.Empty;
         }
+
+        public static T OptimalComposite<T>(IEnumerable<T> items, Func<IReadOnlyCollection<T>, T> compositeFactory, T nullInstance)
+            where T : class
+        {
+            if (items == null)
+                return nullInstance;
+
+            items = items.Where(t => t != null && !object.ReferenceEquals(t, nullInstance));
+            if (!items.Any())
+                return nullInstance;
+
+            if (items.Skip(1).Any()) // 2 or more
+                return compositeFactory(new Buffer<T>(items));
+            else
+                return items.First();
+        }
     }
 
 }

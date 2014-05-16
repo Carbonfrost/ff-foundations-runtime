@@ -57,7 +57,7 @@ namespace Tests.Runtime {
         }
 
         [Test]
-        public void LoadByHydration_should_initialize_properties() {
+        public void LoadByHydration_should_initialize_Properties() {
             var sc = StreamingSources.Properties;
             var properties = new Properties();
             sc.LoadByHydration(StreamContext.FromText("a=b\nc=d"), properties);

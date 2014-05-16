@@ -87,6 +87,16 @@ namespace Carbonfrost.Commons.Shared {
             return v;
         }
 
+        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> source,
+                                                             TKey key,
+                                                             TValue defaultValue = default(TValue)) {
+            TValue v;
+            if (!source.TryGetValue(key, out v)) {
+                return defaultValue;
+            }
+            return v;
+        }
+
         public static void AddIfNotNull<T>(this ICollection<T> source, T item) where T : class {
             if (item == null) return;
             source.Add(item);

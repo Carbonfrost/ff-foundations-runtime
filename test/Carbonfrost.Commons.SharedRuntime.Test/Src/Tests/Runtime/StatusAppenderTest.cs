@@ -34,6 +34,27 @@ namespace Tests.Runtime {
             sa.AppendWarning("warning");
 
             Assert.That(sa.Level, Is.EqualTo(Severity.Error));
+            Assert.That(sa.Children.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Filtered_should_apply_to_error_level() {
+            var sa = new StatusAppender();
+            var filtered = StatusAppender.ErrorsOnly(sa);
+            filtered.AppendError("error", null);
+            filtered.AppendWarning("warning");
+
+            Assert.That(filtered.Children.Count, Is.EqualTo(1));
+            Assert.That(sa.Children.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Filtered_should_apply_predicate() {
+            StatusAppender sa = new StatusAppender();
+            sa.AppendError("error", null);
+            sa.AppendWarning("warning");
+
+            Assert.That(sa.Level, Is.EqualTo(Severity.Error));
         }
     }
 }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
@@ -54,6 +55,26 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         public static IStatusAppender ErrorsOnly(IStatusAppender baseAppender) {
             return Filtered(baseAppender, new Severity[] { Severity.Error} );
+        }
+
+        public static IStatusAppender Filtered(IStatusAppender baseAppender, Func<IStatus, bool> predicate) {
+            if (baseAppender == null || object.ReferenceEquals(baseAppender, StatusAppender.Null)) {
+                return StatusAppender.Null;
+            } else {
+                return new PredicateStatusAppender(baseAppender, predicate);
+            }
+        }
+
+        public static IStatusAppender Compose(params IStatusAppender[] items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeStatusAppender(i),
+                                            Null);
+        }
+
+        public static IStatusAppender Compose(IEnumerable<IStatusAppender> items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeStatusAppender(i),
+                                            Null);
         }
 
         public static IStatusAppender Filtered(IStatusAppender baseAppender, Severity[] severities) {

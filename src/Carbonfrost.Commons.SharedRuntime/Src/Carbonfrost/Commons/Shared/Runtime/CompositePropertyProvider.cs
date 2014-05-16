@@ -24,19 +24,19 @@ using System.Reflection;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    sealed class CompositePropertyProvider : PropertyProviderBase {
+    sealed class CompositePropertyProvider : PropertyProviderBase, IPropertyProviderExtension {
 
-        private readonly IPropertyProviderExtension[] items;
+        private readonly IReadOnlyCollection<IPropertyProviderExtension> items;
 
-        public CompositePropertyProvider(IEnumerable<IPropertyProvider> items) {
-            this.items = items.Select(t => PropertyProvider.Extend(t)).ToArray();
+        public CompositePropertyProvider(IReadOnlyCollection<IPropertyProviderExtension> items) {
+            this.items = items;
         }
 
-        protected override ICustomAttributeProvider GetPropertyAttributeProviderCore(string key) {
-            Require.NotNullOrEmptyString("key", key);
+        protected override ICustomAttributeProvider GetPropertyAttributeProviderCore(string property) {
+            Require.NotNullOrEmptyString("property", property);
 
             foreach (var pp in items) {
-                ICustomAttributeProvider result = pp.GetPropertyAttributeProvider(key);
+                ICustomAttributeProvider result = pp.GetPropertyAttributeProvider(property);
                 if (result != null && result != CustomAttributeProvider.Null)
                     return result;
             }
@@ -44,12 +44,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return CustomAttributeProvider.Null;
         }
 
-        protected override bool TryGetPropertyCore(string key, Type propertyType, out object value) {
-            Require.NotNullOrEmptyString("key", key);
+        protected override bool TryGetPropertyCore(string property, Type propertyType, out object value) {
+            Require.NotNullOrEmptyString("property", property);
             value = null;
 
             foreach (var pp in items) {
-                if (pp.TryGetProperty(key, propertyType, out value))
+                if (pp.TryGetProperty(property, propertyType, out value))
                     return true;
             }
 

@@ -30,11 +30,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         public static IPropertyProvider Null { get { return Properties.Null; } }
 
-        public static IPropertyProvider Compose(IEnumerable<IPropertyProvider> providers) {
-            if (providers == null)
-                throw new ArgumentNullException("providers"); // $NON-NLS-1
-
-            return ComposeCore(providers.ToArray());
+        public static IPropertyProviderExtension Compose(IEnumerable<IPropertyProvider> providers) {
+            return ComposeCore(providers);
         }
 
         public static IPropertyProvider Compose(IEnumerable<KeyValuePair<string, IPropertyProvider>> providers) {
@@ -53,11 +50,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 s => new KeyValuePair<string, IPropertyProvider>(s.Key, PropertyProvider.FromValue(s.Value))));
         }
 
-        public static IPropertyProvider Compose(params IPropertyProvider[] providers) {
-            if (providers == null)
-                throw new ArgumentNullException("providers"); // $NON-NLS-1
-
-            return ComposeCore((IPropertyProvider[]) providers.Clone());
+        public static IPropertyProviderExtension Compose(params IPropertyProvider[] providers) {
+            return ComposeCore(providers);
         }
 
         public static IPropertyProviderExtension Extend(IPropertyProvider provider) {
@@ -161,15 +155,11 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return Format(format, PropertyProvider.Compose(propertyProvider));
         }
 
-        static IPropertyProvider ComposeCore(IPropertyProvider[] providers) {
-            if (providers.Length == 0)
-                return Properties.Null;
-
-            else if (providers.Length == 1)
-                return providers[0];
-
-            else
-                return new CompositePropertyProvider(providers);
+        static IPropertyProviderExtension ComposeCore(IEnumerable<IPropertyProvider> providers) {
+            var providersEx = providers.Select(t => PropertyProvider.Extend(t));
+            return Utility.OptimalComposite(providersEx,
+                                            t => new CompositePropertyProvider(t),
+                                            (IPropertyProviderExtension) Null);
         }
 
         static object Eval(IPropertyProvider pp, string tokenName) {

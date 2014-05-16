@@ -24,7 +24,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
 	public interface IPropertyProviderExtension : IPropertyProvider {
 
-	    ICustomAttributeProvider GetPropertyAttributeProvider(string key);
+	    ICustomAttributeProvider GetPropertyAttributeProvider(string property);
 
 	}
 }

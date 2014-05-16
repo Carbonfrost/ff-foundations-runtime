@@ -24,10 +24,22 @@ using System.Linq;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    class Buffer<TElement> : IEnumerable<TElement> {
+    class Buffer<TElement> : IReadOnlyCollection<TElement> {
 
         private IEnumerator<TElement> source;
         private readonly List<TElement> cache;
+
+        public int Count {
+            get {
+                while (MoveNext()) {}
+                return cache.Count;
+            }
+        }
+
+        public Buffer(IEnumerable<TElement> e) {
+            this.source = e.GetEnumerator();
+            this.cache = new List<TElement>();
+        }
 
         private bool MoveNext() {
             if (source == null)
@@ -47,11 +59,6 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         protected virtual void OnCacheComplete() {}
         protected virtual void OnCacheValue(TElement current) {}
-
-        public Buffer(IEnumerable<TElement> e) {
-            this.source = e.GetEnumerator();
-            this.cache = new List<TElement>();
-        }
 
         public IEnumerator<TElement> GetEnumerator() {
             return new Enumerator(this);

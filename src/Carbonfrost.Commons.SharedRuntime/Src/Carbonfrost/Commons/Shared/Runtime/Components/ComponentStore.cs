@@ -35,20 +35,16 @@ namespace Carbonfrost.Commons.Shared.Runtime.Components {
             return AppDomain.CurrentDomain.GetProvider<ComponentStore>(name);
         }
 
-        public static ComponentStore Compose(params ComponentStore[] stores) {
-            if (stores == null || stores.Length == 0)
-                return ComponentStore.Null;
-            else if (stores.Length == 1)
-                return stores[0];
-            else
-                return new CompositeComponentStore(stores);
+        public static ComponentStore Compose(params ComponentStore[] items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeComponentStore(i),
+                                            Null);
         }
 
-        public static ComponentStore Compose(IEnumerable<ComponentStore> stores) {
-            if (stores == null)
-                return ComponentStore.Null;
-            else
-                return Compose(stores.ToArray());
+        public static ComponentStore Compose(IEnumerable<ComponentStore> items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeComponentStore(i),
+                                            Null);
         }
 
         public abstract ICollection<string> ComponentTypes { get; }

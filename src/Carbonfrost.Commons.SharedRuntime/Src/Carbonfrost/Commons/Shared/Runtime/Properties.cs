@@ -41,6 +41,15 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             set { this.suppressEvents = !value; }
         }
 
+        public object this[string property] {
+            get {
+                return this.GetProperty(property);
+            }
+            set {
+                this.SetProperty(property, value);
+            }
+        }
+
         // Constructors.
         public Properties() {
         }
@@ -51,6 +60,26 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                     this.SetProperty(kvp.Key, kvp.Value);
                 }
             }
+        }
+
+        public void Add(string property, object value) {
+            this.Push(property, value);
+        }
+
+        public void CopyFrom(IEnumerable<KeyValuePair<string, object>> other) {
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            foreach (var kvp in other)
+                Add(kvp.Key, kvp.Value);
+        }
+
+        public void CopyTo(IProperties other) {
+            if (other == null)
+                throw new ArgumentNullException("other");
+
+            foreach (var kvp in this)
+                other.Push(kvp.Key, kvp.Value);
         }
 
         public void Load(string fileName) {

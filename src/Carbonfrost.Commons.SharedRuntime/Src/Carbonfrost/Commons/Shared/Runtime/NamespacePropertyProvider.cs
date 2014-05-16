@@ -26,14 +26,14 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
     sealed class NamespacePropertyProvider : PropertyProviderBase {
 
-        private readonly IDictionary<string, CompositePropertyProvider> items
-            = new Dictionary<string, CompositePropertyProvider>();
+        private readonly IDictionary<string, IPropertyProviderExtension> items
+            = new Dictionary<string, IPropertyProviderExtension>();
 
         public NamespacePropertyProvider(
             IEnumerable<KeyValuePair<string, IPropertyProvider>> elements) {
 
             foreach (var grouping in elements.GroupBy(l => l.Key, l => l.Value)) {
-                items.Add(grouping.Key, new CompositePropertyProvider(grouping));
+                items.Add(grouping.Key, (IPropertyProviderExtension) PropertyProvider.Compose(grouping));
             }
         }
 
@@ -66,7 +66,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 return result.GetPropertyAttributeProvider(internalKey);
         }
 
-        CompositePropertyProvider GetCandidates(string key, out string internalKey) {
+        IPropertyProviderExtension GetCandidates(string key, out string internalKey) {
             // Use the prefix and index method to pick the category
             string[] items = Utility.SplitInTwo(key, ':');
             string prefix = string.Empty;
@@ -79,7 +79,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
 
             // Look up the composite provider using the key
-            CompositePropertyProvider pp;
+            IPropertyProviderExtension pp;
             if (this.items.TryGetValue(prefix, out pp))
                 return pp;
             else

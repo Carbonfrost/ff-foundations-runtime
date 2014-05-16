@@ -82,8 +82,8 @@ namespace Carbonfrost.Commons.Shared {
                 throw new ArgumentNullException("serviceProvider"); // $NON-NLS-1
 
             T t = (T) serviceProvider.GetService(typeof(T));
-			if (object.Equals(t, default(T)))
-				throw RuntimeFailure.ServiceNotFound(typeof(T));
+            if (object.Equals(t, default(T)))
+                throw RuntimeFailure.ServiceNotFound(typeof(T));
 
             return t;
         }
@@ -94,9 +94,9 @@ namespace Carbonfrost.Commons.Shared {
 
             T t = (T) serviceProvider.GetService(typeof(T));
             if (object.Equals(t, default(T)))
-				return defaultService;
-			else
-				return t;
+                return defaultService;
+            else
+                return t;
         }
 
         public static IEnumerable<T> GetServices<T>(this IServiceProviderExtension serviceProvider) {
@@ -132,32 +132,59 @@ namespace Carbonfrost.Commons.Shared {
                 return s;
         }
 
-        public static IServiceProvider Compose(params IServiceProvider[] serviceProviders) {
-            if (serviceProviders == null)
-                return ServiceProvider.Null;
+        public static IServiceProvider Filtered(IServiceProvider serviceProvider, Func<Type, bool> typeFilter) {
+            if (serviceProvider == null || serviceProvider == Null)
+                return Null;
+            if (typeFilter == null)
+                return serviceProvider;
 
-            serviceProviders = serviceProviders.Where(t => t != null && !(t is NullServiceProvider)).ToArray();
-            if (serviceProviders.Length == 0)
-                return ServiceProvider.Null;
-
-            else if (serviceProviders.Length == 1)
-                return serviceProviders[0];
-            else
-                return new CompositeServiceProvider(serviceProviders);
+            return new FilteredServiceProvider(typeFilter, serviceProvider);
         }
 
-        public static IServiceProvider Compose(params IServiceProviderExtension[] serviceProviders) {
-            if (serviceProviders == null)
-                return ServiceProvider.Null;
+        public static IServiceProvider Filtered(IServiceProvider serviceProvider, params Type[] types) {
+            if (serviceProvider == null || serviceProvider == Null)
+                return Null;
+            if (types == null || types.Length == 0)
+                return serviceProvider;
 
-            serviceProviders = serviceProviders.Where(t => t != null && !(t is NullServiceProvider)).ToArray();
-            if (serviceProviders.Length == 0)
-                return ServiceProvider.Null;
-
-            else if (serviceProviders.Length == 1)
-                return serviceProviders[0];
+            ICollection<Type> myTypes;
+            if (types.Length > 8)
+                myTypes = new HashSet<Type>(types);
             else
-                return new CompositeServiceProviderExtension(serviceProviders);
+                myTypes = new List<Type>(types);
+
+            return Filtered(serviceProvider, t => myTypes.Contains(t));
+        }
+
+        public static IServiceProvider FromValue(object value, params Type[] types) {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            return Filtered(FromValue(value), types);
+        }
+
+        public static IServiceProvider Compose(IEnumerable<IServiceProvider> items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeServiceProvider(i),
+                                            Null);
+        }
+
+        public static IServiceProvider Compose(IEnumerable<IServiceProviderExtension> items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeServiceProviderExtension(i),
+                                            (IServiceProviderExtension) Null);
+        }
+
+        public static IServiceProvider Compose(params IServiceProvider[] items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeServiceProvider(i),
+                                            Null);
+        }
+
+        public static IServiceProviderExtension Compose(params IServiceProviderExtension[] items) {
+            return Utility.OptimalComposite(items,
+                                            i => new CompositeServiceProviderExtension(i),
+                                            (IServiceProviderExtension) Null);
         }
 
         // Nested type definitions
@@ -184,9 +211,9 @@ namespace Carbonfrost.Commons.Shared {
 
         class CompositeServiceProvider : IServiceProvider {
 
-            private readonly IServiceProvider[] items;
+            private readonly IReadOnlyCollection<IServiceProvider> items;
 
-            public CompositeServiceProvider(IServiceProvider[] items) {
+            public CompositeServiceProvider(IReadOnlyCollection<IServiceProvider> items) {
                 this.items = items;
             }
 
@@ -246,11 +273,31 @@ namespace Carbonfrost.Commons.Shared {
             }
         }
 
+        sealed class FilteredServiceProvider : IServiceProvider {
+
+            private readonly Func<Type, bool> types;
+            private readonly IServiceProvider sp;
+
+            public FilteredServiceProvider(Func<Type, bool> types, IServiceProvider sp) {
+                this.sp = sp;
+                this.types = types;
+            }
+
+            public object GetService(Type serviceType) {
+                if (serviceType == null)
+                    throw new ArgumentNullException("serviceType");
+                if (types(serviceType))
+                    return sp.GetService(serviceType);
+                else
+                    return null;
+            }
+        }
+
         class CompositeServiceProviderExtension : CompositeServiceProvider, IServiceProviderExtension {
 
-            private readonly IServiceProviderExtension[] items;
+            private readonly IReadOnlyCollection<IServiceProviderExtension> items;
 
-            public CompositeServiceProviderExtension(IServiceProviderExtension[] items) : base(items) {
+            public CompositeServiceProviderExtension(IReadOnlyCollection<IServiceProviderExtension> items) : base(items) {
                 this.items = items;
             }
 

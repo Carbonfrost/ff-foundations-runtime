@@ -27,6 +27,14 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public abstract void Save(TextWriter writer, object value);
         public abstract object Load(TextReader reader, Type instanceType);
 
+        public virtual void Load(TextReader reader, object instance) {
+            if (reader == null)
+                throw new ArgumentNullException("reader");
+
+            var copyFrom = Load(reader, instance.GetType());
+            Template.Copy(copyFrom, instance);
+        }
+
         public override void Save(StreamContext outputTarget,
                                   object value) {
 
