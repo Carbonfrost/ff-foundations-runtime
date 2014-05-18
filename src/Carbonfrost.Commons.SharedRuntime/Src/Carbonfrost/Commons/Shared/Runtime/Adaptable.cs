@@ -38,7 +38,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (property == null)
                 throw new ArgumentNullException("property"); // $NON-NLS-1
 
-            var cca = (ConcreteClassProviderAttribute) property.Attributes[typeof(ConcreteClassAttribute)];
+            var cca = GetConcreteClassProvider(property);
             Type type = property.PropertyType;
             if (cca == null)
                 return (type.IsAbstract || type.IsInterface) ? null : type;
@@ -50,11 +50,25 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (type == null)
                 throw new ArgumentNullException("type"); // $NON-NLS-1
 
-            var cca = Attribute.GetCustomAttribute(type, typeof(ConcreteClassProviderAttribute)) as ConcreteClassProviderAttribute;
+            var cca = GetConcreteClassProvider(type);
             if (cca == null)
                 return (type.IsAbstract || type.IsInterface) ? null : type;
             else
                 return cca.GetConcreteClass(type, serviceProvider);
+        }
+
+        public static IConcreteClassProvider GetConcreteClassProvider(this Type type) {
+            if (type == null)
+                throw new ArgumentNullException("type"); // $NON-NLS-1
+
+            return type.GetCustomAttributes(false).OfType<IConcreteClassProvider>().FirstOrDefault();
+        }
+
+        public static IConcreteClassProvider GetConcreteClassProvider(this PropertyDescriptor property) {
+            if (property == null)
+                throw new ArgumentNullException("property");
+
+            return property.Attributes.OfType<IConcreteClassProvider>().FirstOrDefault();
         }
 
         public static AttributeUsageAttribute GetAttributeUsage(this Type attributeType) {

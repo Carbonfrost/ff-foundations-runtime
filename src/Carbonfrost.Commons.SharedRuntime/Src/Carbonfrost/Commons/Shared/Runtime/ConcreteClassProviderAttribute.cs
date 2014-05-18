@@ -1,7 +1,7 @@
 //
 // - ConcreteClassProviderAttribute.cs -
 //
-// Copyright 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2012, 2014 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,27 +21,36 @@ using System;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    public abstract class ConcreteClassProviderAttribute : Attribute {
+    public sealed class ConcreteClassProviderAttribute : ConcreteClassProviderAttributeBase {
 
-        protected ConcreteClassProviderAttribute() {}
+        private readonly LateBound<IConcreteClassProvider> concreteClassProvider;
 
-        public Type GetConcreteClass(
-            Type sourceType, IServiceProvider serviceProvider) {
-            if (sourceType == null)
-                throw new ArgumentNullException("sourceType");
-
-            serviceProvider = serviceProvider ?? ServiceProvider.Null;
-
-            Type result = GetConcreteClassCore(sourceType, serviceProvider);
-            if (result != null && !sourceType.IsAssignableFrom(result)) {
-                throw RuntimeFailure.ConcreteClassError(result);
+        public Type ConcreteClassProviderType {
+            get {
+                return concreteClassProvider.TypeReference.Resolve();
             }
-
-            return result;
         }
 
-        protected abstract Type GetConcreteClassCore(
-            Type sourceType, IServiceProvider serviceProvider);
+        public IConcreteClassProvider Value {
+            get {
+                return this.concreteClassProvider.Value;
+            }
+        }
+
+        public ConcreteClassProviderAttribute(Type concreteClassProviderType) {
+            if (concreteClassProviderType == null)
+                throw new ArgumentNullException("concreteClassProviderType");
+
+            if (!typeof(IConcreteClassProvider).IsAssignableFrom(concreteClassProviderType))
+                throw Failure.NotAssignableFrom("concreteClassProvider", concreteClassProviderType, typeof(IConcreteClassProvider));
+
+            this.concreteClassProvider = new LateBound<IConcreteClassProvider>(TypeReference.FromType(concreteClassProviderType), ServiceProvider.Current);
+        }
+
+        protected override Type GetConcreteClassCore(Type sourceType, IServiceProvider serviceProvider) {
+            return this.Value.GetConcreteClass(sourceType, serviceProvider);
+        }
     }
+
 }
 

@@ -25,7 +25,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                     | AttributeTargets.Interface
                     | AttributeTargets.Class,
                     AllowMultiple = false, Inherited = false)]
-    public sealed class ConcreteClassAttribute : ConcreteClassProviderAttribute {
+    public sealed class ConcreteClassAttribute : ConcreteClassProviderAttributeBase {
 
         private readonly Type type;
 
