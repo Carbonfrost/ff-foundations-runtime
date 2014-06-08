@@ -214,6 +214,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return Failure.Prepare(new AmbiguousMatchException(SR.MultipleProviders()));
         }
 
+        public static AmbiguousMatchException MultipleProviderTypes() {
+            return Failure.Prepare(new AmbiguousMatchException(SR.MultipleProviderTypes()));
+        }
+
         public static InvalidOperationException CannotSpecifyPublicKeyToken() {
             return Failure.Prepare(new InvalidOperationException(SR.CannotSpecifyPublicKeyToken()));
         }

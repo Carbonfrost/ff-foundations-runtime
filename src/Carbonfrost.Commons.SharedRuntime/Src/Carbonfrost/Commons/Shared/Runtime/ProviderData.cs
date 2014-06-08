@@ -110,6 +110,18 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         internal static IEnumerable<Type> GetProviderTypes(AppDomain appDomain, Type providerType) {
             return GetProviderData(appDomain, providerType).Select(t => t.ValueType);
         }
+        
+        private Type SingleProviderType(object instance) {
+            if (instance == null)
+                throw new ArgumentNullException("instance");
+
+            // TODO Might be possible for a provider to implement a type that it isn't a provider for
+            // via registration or define exports (rare)
+
+            return this.providerRoots.Where(
+                t => t.IsInstanceOfType(instance))
+                .SingleOrThrow(RuntimeFailure.MultipleProviderTypes);
+        }
 
         internal static IEnumerable<QualifiedName> GetProviderNames(AppDomain appDomain, Type providerType) {
             return GetProviderData(appDomain, providerType).Select(t => t.Name);
@@ -229,6 +241,14 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 .SingleOrThrow(RuntimeFailure.MultipleProviders);
         }
 
+        object IProviderInfoDescription.GetProviderMetadata(object instance) {
+            return ((IProviderInfoDescription) this).GetProviderMetadata(SingleProviderType(instance), instance);
+        }
+
+        QualifiedName IProviderInfoDescription.GetProviderName(object instance) {
+            return ((IProviderInfoDescription) this).GetProviderName(SingleProviderType(instance), instance);
+        }
+
         object IProviderInfoDescription.GetProvider(Type providerType, object criteria) {
             var appDomain = AppDomain.CurrentDomain;
             if (providerType == null)
@@ -267,7 +287,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (instance == null)
                 throw new ArgumentNullException("instance");
 
-            return ProviderData.GetProviderMetadata(AppDomain.CurrentDomain, providerType, t => object.ReferenceEquals(t.GetValue(), instance), t => t.Metadata);
+            return ProviderData.GetProviderMetadata(AppDomain.CurrentDomain, providerType, t => object.ReferenceEquals(t.Member, instance) || t.IsValue(instance), t => t.Metadata);
         }
 
         QualifiedName IProviderInfoDescription.GetProviderName(Type providerType, object instance) {

@@ -93,6 +93,14 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return DescribeProviders(appDomain).GetProviderMembers(providerType);
         }
 
+        public static object GetProviderMetadata(this AppDomain appDomain, object instance) {
+            return DescribeProviders(appDomain).GetProviderMetadata(instance);
+        }
+
+        public static QualifiedName GetProviderName(this AppDomain appDomain, object instance) {
+            return DescribeProviders(appDomain).GetProviderName(instance);
+        }
+
         public static Type GetProviderType(this AppDomain appDomain, Type providerType, string name) {
             return DescribeProviders(appDomain).GetProviderType(providerType, name);
         }

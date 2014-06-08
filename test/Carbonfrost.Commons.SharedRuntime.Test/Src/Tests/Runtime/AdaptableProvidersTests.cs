@@ -96,6 +96,13 @@ namespace Tests.Runtime {
         }
 
         [Test]
+        public void GetProviderMetadata_using_provider_brief() {
+            var cs1 = AppDomain.CurrentDomain.GetProviderMetadata(StreamingSource.BinaryFormatterBase64);
+            var cs2 = AppDomain.CurrentDomain.GetProviderMetadata(typeof(StreamingSource), StreamingSource.BinaryFormatterBase64);
+            Assert.That(cs1, Is.SameAs(cs2));
+        }
+
+        [Test]
         public void provider_names_by_qualified_name() {
             var name = NamespaceUri.Create(Xmlns.SharedRuntime2008) + "null";
             var cs1 = AppDomain.CurrentDomain.GetProvider<ComponentStore>(name);

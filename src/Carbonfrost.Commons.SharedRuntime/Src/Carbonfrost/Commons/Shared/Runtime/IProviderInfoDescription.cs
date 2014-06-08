@@ -45,6 +45,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         object GetProvider(Type providerType, string name);
         object GetProviderMetadata(Type providerType, object instance);
         QualifiedName GetProviderName(Type providerType, object instance);
+        object GetProviderMetadata(object instance);
+        QualifiedName GetProviderName(object instance);
         T GetProvider<T>(object criteria);
         T GetProvider<T>(QualifiedName name);
         Type GetProviderType(Type providerType, object criteria);
