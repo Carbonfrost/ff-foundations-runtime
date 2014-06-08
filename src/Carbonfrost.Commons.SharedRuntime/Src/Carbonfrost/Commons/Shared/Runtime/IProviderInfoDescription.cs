@@ -39,6 +39,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         IEnumerable<Type> GetProviderTypes(Type providerType);
         MemberInfo GetProviderMember(Type providerType, QualifiedName name);
         MemberInfo GetProviderMember(Type providerType, string name);
+        MemberInfo GetProviderMember(Type providerType, object criteria);
         object GetProvider(Type providerType, object criteria);
         object GetProvider(Type providerType, QualifiedName name);
         object GetProvider(Type providerType, string name);

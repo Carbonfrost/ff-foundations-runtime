@@ -85,6 +85,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return DescribeProviders(appDomain).GetProviderMember(providerType, name);
         }
 
+        public static MemberInfo GetProviderMember(this AppDomain appDomain, Type providerType, object criteria) {
+            return DescribeProviders(appDomain).GetProviderMember(providerType, criteria);
+        }
+
         public static IEnumerable<MemberInfo> GetProviderMembers(this AppDomain appDomain, Type providerType) {
             return DescribeProviders(appDomain).GetProviderMembers(providerType);
         }

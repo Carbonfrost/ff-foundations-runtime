@@ -210,6 +210,25 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return ProviderData.GetProvidersByLocalName(AppDomain.CurrentDomain, providerType, name, t => t.Member).SingleOrThrow(RuntimeFailure.MultipleProviders);
         }
 
+        MemberInfo IProviderInfoDescription.GetProviderMember(Type providerType, object criteria) {
+            var appDomain = AppDomain.CurrentDomain;
+            if (providerType == null)
+                throw new ArgumentNullException("providerType");
+            if (criteria == null)
+                throw new ArgumentNullException("criteria");
+
+            string s = criteria as string;
+            if (s != null)
+                return ((IProviderInfoDescription) this).GetProviderMember(providerType, s);
+
+            QualifiedName t = criteria as QualifiedName;
+            if (t != null)
+                return ((IProviderInfoDescription) this).GetProviderMember(providerType, t);
+
+            return ProviderData.GetProvidersUsingCriteria(appDomain, providerType, criteria, u => u.Member)
+                .SingleOrThrow(RuntimeFailure.MultipleProviders);
+        }
+
         object IProviderInfoDescription.GetProvider(Type providerType, object criteria) {
             var appDomain = AppDomain.CurrentDomain;
             if (providerType == null)

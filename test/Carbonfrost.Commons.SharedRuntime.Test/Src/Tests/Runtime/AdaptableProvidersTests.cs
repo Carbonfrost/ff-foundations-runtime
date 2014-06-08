@@ -18,6 +18,7 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using Carbonfrost.Commons.Shared;
 using Carbonfrost.Commons.Shared.Runtime;
 using Carbonfrost.Commons.Shared.Runtime.Components;
@@ -83,6 +84,15 @@ namespace Tests.Runtime {
             cs = AppDomain.CurrentDomain.GetProviders(typeof(StreamingSource),
                                                       new { Assembly = typeof(StreamingSource).Assembly }).ToList();
             Assert.That(cs, Has.Count.EqualTo(5));
+        }
+
+        [Test]
+        public void GetProviderMember_using_attribute_criteria() {
+            var cs = AppDomain.CurrentDomain.GetProviderMember(typeof(StreamingSource),
+                                                               new { contentType = ContentTypes.BinaryFormatterBase64 });
+            var field = typeof(StreamingSource).GetField("BinaryFormatterBase64");
+            Assert.That(cs,
+                        Is.SameAs(field));
         }
 
         [Test]
