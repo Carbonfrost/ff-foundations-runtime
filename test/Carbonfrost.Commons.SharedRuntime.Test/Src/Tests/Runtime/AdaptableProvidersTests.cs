@@ -71,7 +71,7 @@ namespace Tests.Runtime {
             var cs = AppDomain.CurrentDomain.GetProvider(typeof(StreamingSource),
                                                          new { contentType = ContentTypes.BinaryFormatterBase64 });
             Assert.That(cs,
-                        Is.SameAs(StreamingSources.BinaryFormatterBase64));
+                        Is.SameAs(StreamingSource.BinaryFormatterBase64));
         }
 
         [Test]

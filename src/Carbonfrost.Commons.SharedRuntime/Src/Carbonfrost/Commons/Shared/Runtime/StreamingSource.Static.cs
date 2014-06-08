@@ -31,6 +31,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return AppDomain.CurrentDomain.GetProvider<StreamingSource>(name);
         }
 
+        public static StreamingSource FromCriteria(object criteria) {
+            return AppDomain.CurrentDomain.GetProvider<StreamingSource>(criteria);
+        }
+
         public static StreamingSource Create(KnownStreamingSource knownSource) {
             return (StreamingSource) Activator.CreateInstance(GetStreamingSourceType(knownSource));
         }

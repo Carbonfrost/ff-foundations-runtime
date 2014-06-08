@@ -69,8 +69,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         }
 
         public IEnumerable<string> EnumerateContentTypes() {
-            // Only on  '\t', '\r', '\n' because content types could contain params
-            return Utility.SplitText(ref this.contentTypeCache, this.ContentTypes, new [] { '\t', '\r', '\n', });
+            // Only on  '\t', '\r', '\n', '|' because content types could contain params
+            return Utility.SplitText(ref this.contentTypeCache, this.ContentTypes, new [] { '|', '\t', '\r', '\n', });
         }
 
         public IEnumerable<string> EnumerateExtensions() {

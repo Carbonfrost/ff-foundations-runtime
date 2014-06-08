@@ -28,7 +28,7 @@ namespace Tests.Runtime {
 
         [Test]
         public void test_streaming_source_from_properties() {
-            var me = StreamingSourceFactory.FromAssembly(typeof(StreamingSources).Assembly);
+            var me = StreamingSourceFactory.FromAssembly(typeof(StreamingSource).Assembly);
             var type = me.GetStreamingSourceType(typeof(Properties));
             Assert.That(type, Is.EqualTo(typeof(PropertiesStreamingSource)));
         }

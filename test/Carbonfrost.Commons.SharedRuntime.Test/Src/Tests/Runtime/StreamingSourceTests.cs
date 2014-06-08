@@ -32,6 +32,8 @@ namespace Tests.Runtime {
             Assert.That(StreamingSource.FromName("xmlFormatter"), Is.Not.Null);
             Assert.That(StreamingSource.FromName("text"), Is.Not.Null);
             Assert.That(StreamingSource.FromName("binaryFormatter"), Is.Not.Null);
+            Assert.That(StreamingSource.FromName("properties"), Is.Not.Null);
+            Assert.That(StreamingSource.FromName("binaryFormatterBase64"), Is.Not.Null);
         }
 
         [Test]
@@ -50,15 +52,15 @@ namespace Tests.Runtime {
         [Test]
         public void test_known_content_types() {
             Assert.That(StreamingSource.Create(typeof(object), ContentType.Parse(ContentTypes.BinaryFormatterBase64)),
-                        Is.SameAs(StreamingSources.BinaryFormatterBase64));
+                        Is.SameAs(StreamingSource.BinaryFormatterBase64));
 
             Assert.That(StreamingSource.Create(typeof(object), ContentType.Parse(ContentTypes.BinaryFormatter)),
-                        Is.SameAs(StreamingSources.BinaryFormatter));
+                        Is.SameAs(StreamingSource.BinaryFormatter));
         }
 
         [Test]
         public void LoadByHydration_should_initialize_Properties() {
-            var sc = StreamingSources.Properties;
+            var sc = StreamingSource.Properties;
             var properties = new Properties();
             sc.LoadByHydration(StreamContext.FromText("a=b\nc=d"), properties);
 
@@ -66,7 +68,17 @@ namespace Tests.Runtime {
             Assert.That(properties["c"], Is.EqualTo("d"));
         }
 
-    }
+        [Test]
+        [TestCase("application/x-microsoft.net.object.binary")]
+        [TestCase("application/x-microsoft.net.object.bytearray.binary")]
+        [TestCase("text/x-properties")]
+        [TestCase("text/x-ini")]
+        public void FromCriteria_should_acquire_known_content_type(string contentType)
+        {
+            Assert.That(StreamingSource.FromCriteria(
+                new { contentType }), Is.Not.Null);
+        }
 
+    }
 
 }

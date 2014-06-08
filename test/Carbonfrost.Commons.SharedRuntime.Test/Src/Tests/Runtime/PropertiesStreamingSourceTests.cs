@@ -31,11 +31,24 @@ namespace Tests.Runtime
         [Test]
         public void Load_should_initialize_properties_existing()
         {
-            var sc = StreamingSources.Properties;
+            var sc = StreamingSource.Properties;
             var properties = new Properties();
             sc.Load(StreamContext.FromText("a=b\nc=d"), properties);
             Assert.That(properties["a"], Is.EqualTo("b"));
             Assert.That(properties["c"], Is.EqualTo("d"));
+        }
+
+        [Test]
+        public void Provider_metadata_should_enumerate_content_types_and_extensions()
+        {
+            var props = StreamingSource.Properties;
+            var me = (StreamingSourceUsageAttribute) AppDomain.CurrentDomain.GetProviderMetadata(typeof(StreamingSource), props);
+
+            Assert.That(me.EnumerateContentTypes(),
+                        Is.EquivalentTo(new [] { "text/x-properties", "text/x-ini" }));
+
+            Assert.That(me.EnumerateExtensions(),
+                        Is.EquivalentTo(new [] { ".cfg", ".conf", ".ini", ".properties" }));
         }
     }
 }

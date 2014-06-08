@@ -17,30 +17,29 @@
 //
 
 using System;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    sealed class XmlFormatterStreamingSource : StreamingSource {
+    sealed class XmlFormatterStreamingSource : TextSource {
 
-        public override void Save(StreamContext outputTarget,
-                                  object value) {
-            if (outputTarget == null)
-                throw new ArgumentNullException("outputTarget"); // $NON-NLS-1
+        public override void Save(TextWriter writer, object value) {
+            if (writer == null)
+                throw new ArgumentNullException("writer");
             if (value == null)
                 throw new ArgumentNullException("value"); // $NON-NLS-1
 
             XmlSerializer xs = new XmlSerializer(value.GetType());
-            xs.Serialize(outputTarget.AppendText(), value);
+            xs.Serialize(writer, value);
         }
 
-        public override object Load(StreamContext inputSource,
-                                    Type instanceType) {
-            if (inputSource == null)
-                throw new ArgumentNullException("inputSource");  // $NON-NLS-1
+        public override object Load(TextReader reader, Type instanceType) {
+            if (reader == null)
+                throw new ArgumentNullException("reader");
 
             XmlSerializer xs = new XmlSerializer(instanceType);
-            return xs.Deserialize(inputSource.OpenText());
+            return xs.Deserialize(reader);
         }
 
     }

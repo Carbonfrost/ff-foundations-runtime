@@ -81,7 +81,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
             IPropertyStore pp = Adaptable.TryAdapt<IPropertyStore>(value);
             if (pp == null) {
-                pp = Properties.FromValue(value);
+                pp = Runtime.Properties.FromValue(value);
             }
 
             if (pp == null)

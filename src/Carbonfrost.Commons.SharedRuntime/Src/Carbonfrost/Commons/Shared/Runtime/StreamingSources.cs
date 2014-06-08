@@ -21,7 +21,7 @@ using System;
 namespace Carbonfrost.Commons.Shared.Runtime {
 
     [Providers]
-    public static class StreamingSources {
+    partial class StreamingSource {
 
         [StreamingSourceUsage(ContentTypes = ContentTypes.BinaryFormatterBase64)]
         public static readonly StreamingSource BinaryFormatterBase64;
@@ -32,10 +32,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public static readonly StreamingSource XmlFormatter;
         public static readonly StreamingSource Text;
 
-        [StreamingSourceUsage(ContentTypes = "text/x-properties; text/x-ini", Extensions = ".ini; .conf; .cfg; .properties")]
+        [StreamingSourceUsage(ContentTypes = "text/x-properties|text/x-ini", Extensions = ".ini; .conf; .cfg; .properties")]
         public static readonly StreamingSource Properties;
 
-        static StreamingSources() {
+        static StreamingSource() {
             Text = new TextStreamingSource();
             XmlFormatter = new XmlFormatterStreamingSource();
             BinaryFormatter = new BinaryFormatterStreamingSource();
