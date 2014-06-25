@@ -7,5 +7,6 @@ bin/
 *.g.resources
 *.sln
 *.csproj
+*.sdsettings
 *.localOverrides.config
 *.userprefs
