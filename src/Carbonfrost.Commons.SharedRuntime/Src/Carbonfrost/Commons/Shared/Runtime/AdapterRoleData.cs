@@ -27,28 +27,13 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
     sealed class AdapterRoleData {
 
-        private readonly SortedList<string, Type> AdapterMethods;
         private readonly MethodInfo validTest;
 
         private static readonly AppDomainLocal<IDictionary<string, AdapterRoleData>> allAdapterRoles
             = new AppDomainLocal<IDictionary<string, AdapterRoleData>>(CreateData);
 
-        public AdapterRoleData(IEnumerable<FieldInfo> adapterMethods,
-                               MethodInfo validTest)
+        public AdapterRoleData(MethodInfo validTest)
         {
-            this.AdapterMethods = new SortedList<string, Type>();
-
-            if (adapterMethods != null) {
-                foreach (var f in adapterMethods) {
-                    // Get the delegate types from expression
-                    if (f.FieldType.IsGenericType
-                        && f.FieldType.GetGenericTypeDefinition() == typeof(Expression<>)) {
-                        this.AdapterMethods.Add(f.Name,
-                                                f.FieldType.GetGenericArguments()[0]);
-                    }
-                }
-            }
-
             this.validTest = validTest;
         }
 
@@ -57,47 +42,17 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 if (!field.IsStatic)
                     continue;
 
-                IEnumerable<FieldInfo> adapterMethods = null;
                 MethodInfo validMethod = adapterRoleClass.GetMethod(string.Format("Is{0}Type", field.Name),
                                                                     BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
-                var functionDeclarator = adapterRoleClass.GetNestedType(field.Name + "Functions");
-                if (functionDeclarator != null) {
-                    adapterMethods = functionDeclarator.GetFields();
-                }
-
-                var result = new AdapterRoleData(adapterMethods, validMethod);
+                var result = new AdapterRoleData(validMethod);
                 yield return new KeyValuePair<string, AdapterRoleData>(field.Name, result);
             }
-        }
-
-        public MethodInfo FindAdapterMethod(Type implicitAdapterType, string method) {
-            Type type;
-            if (this.AdapterMethods.TryGetValue(method, out type)) {
-                Type[] argumentTypes = type.GetGenericArguments();
-                Type requiredReturnType = null;
-
-                // We only expect Action and Func in expression trees
-                if (type.GetGenericTypeDefinition().FullName.StartsWith("System.Func`", StringComparison.Ordinal)) {
-                    requiredReturnType = argumentTypes.Last();
-                    argumentTypes = argumentTypes.Take(argumentTypes.Length - 1).ToArray();
-                }
-
-                MethodInfo result = implicitAdapterType.GetMethod(method, argumentTypes);
-                if (result != null && requiredReturnType != null) {
-                    return requiredReturnType.IsAssignableFrom(result.ReturnType) ? result : null;
-                }
-
-                return result;
-            }
-
-            return null;
         }
 
         public bool IsValidAdapter(Type adapterType) {
             if (validTest == null)
                 return true;
-
             return (bool) validTest.Invoke(null, new [] { adapterType });
         }
 

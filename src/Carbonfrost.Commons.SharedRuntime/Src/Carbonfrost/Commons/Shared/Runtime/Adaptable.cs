@@ -616,6 +616,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
             Type[] argTypes = signature.Parameters.Select(p => p.Type).ToArray();
             MethodInfo mi = instanceType.GetMethod(name, flags, null, argTypes, null);
+            if (mi == null)
+                return null;
+            if (signature.ReturnType == null)
+                return mi.ReturnType == null ? mi : null;
             if (signature.ReturnType.IsAssignableFrom(mi.ReturnType))
                 return mi;
             else
@@ -805,6 +809,8 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (adapteeType == null)
                 throw new ArgumentNullException("adapteeType"); // $NON-NLS-1
             Require.NotNullOrAllWhitespace("adapterRoleName", adapterRoleName);
+            if (null == AdapterRoleData.FromName(adapterRoleName))
+                return Empty<Type>.Array;
 
             IEnumerable<Type> result;
             IEnumerable<Type> explicitAdapters = ((AdapterAttribute[]) adapteeType.GetCustomAttributes(typeof(AdapterAttribute), inherit))
@@ -820,8 +826,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
 
             result = result.Concat(DefineAdapterAttribute.GetAdapterTypes(adapteeType, adapterRoleName, inherit));
-
-            return result;
+            return result.Where(t => t.IsValidAdapter(adapterRoleName));
         }
 
         public static string GetExtensionImplementationName(this Type type) {

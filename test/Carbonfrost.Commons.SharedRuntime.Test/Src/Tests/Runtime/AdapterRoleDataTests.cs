@@ -20,7 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
+using Carbonfrost.Commons.ComponentModel.Annotations;
+using Carbonfrost.Commons.Shared;
 using Carbonfrost.Commons.Shared.Runtime;
+using Carbonfrost.Commons.Shared.Runtime.Components;
 using NUnit.Framework;
 
 namespace Tests.Runtime {
@@ -72,7 +75,14 @@ namespace Tests.Runtime {
         }
 
         [Test]
-        public void should_() {
+        public void IsBuilderType_should_return_correct_result_nominal() {
+			Assert.True(AdapterRole.IsBuilderType(typeof(ComponentBuilder)));
+			Assert.True(AdapterRole.IsBuilderType(typeof(RelationshipBuilder)));
+			Assert.False(AdapterRole.IsBuilderType(typeof(Glob)));
+        }
+
+        [Test]
+        public void should_find_adapter_methods_and_validity() {
             var results = new Dictionary<string, AdapterRoleData>();
             foreach (var kvp in AdapterRoleData.FromStaticClass(typeof(MyAdapterRoles)))
                 results.Add(kvp.Key, kvp.Value);
@@ -81,10 +91,6 @@ namespace Tests.Runtime {
             Assert.That(results["Role1"].IsValidAdapter(null), Is.True);
             Assert.That(results["Role2"].IsValidAdapter(null), Is.False);
             Assert.That(results["Role3"].IsValidAdapter(null), Is.True);
-            Assert.That(results["Role1"].FindAdapterMethod(typeof(Role1Implementer), "Hello"),
-                        Is.EqualTo(typeof(Role1Implementer).GetMethod("Hello")));
-            Assert.That(results["Role1"].FindAdapterMethod(typeof(Role1ImplementerTooManyArguments), "Hello"), Is.Null);
-
         }
 
         [Test]
@@ -92,10 +98,6 @@ namespace Tests.Runtime {
             var results = new Dictionary<string, AdapterRoleData>();
             foreach (var kvp in AdapterRoleData.FromStaticClass(typeof(MyAdapterRoles)))
                 results.Add(kvp.Key, kvp.Value);
-
-            Assert.That(results["Role1"].FindAdapterMethod(typeof(Role1ImplementerDifferentReturnType), "Goodbye"),
-                        Is.EqualTo(typeof(Role1ImplementerDifferentReturnType).GetMethod("Goodbye")));
-
         }
 
         [Test]

@@ -17,13 +17,8 @@
 //
 
 using System;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 
-using Carbonfrost.Commons.Shared;
 using Carbonfrost.Commons.Shared.Runtime;
 using Carbonfrost.Commons.Shared.Runtime.Components;
 using NUnit.Framework;
@@ -39,11 +34,15 @@ namespace Tests.Runtime {
 
         [Adapter(typeof(ABuilder3), "Builder")]
         class B {}
-        class ABuilder3 {}
+        class ABuilder3 {
+            public object Build() { return null; }
+        }
         class ABuilder4 {}
 
         [Builder(typeof(C))] // Not allowed to use self
-        class C {}
+        class C {
+            public object Build() { return null; }
+        }
 
         [Builder(typeof(A))]
         class D {} // Not allowed since A specifies a Builder
@@ -76,34 +75,32 @@ namespace Tests.Runtime {
                         Is.EqualTo(typeof(EBuilder)));
         }
 
-//        [Test]
-//        public void specified_builder_cannot_specify_another_builder() {
-//            try {
-//                Adaptable.GetBuilderType(typeof(D));
-//
-//            } catch (Exception ex) {
-//                Assert.That(ex, Is.InstanceOf(typeof(FormatException)));
-//                Assert.That(ex.Message, Is.EqualTo(SR.BuilderCannotBeSelf(typeof(D))));
-//                return;
-//            }
-//
-//            Assert.Fail("Expected an exception to be thrown.");
-//        }
+        [Test]
+        public void cannot_specify_builder_that_specifies_builder() {
+            var result = Adaptable.GetBuilderType(typeof(D));
+            Assert.That(result, Is.Null);
+        }
 
-//        [Test]
-//        public void cannot_use_self_as_builder_adapter() {
-//            Assert.That(() => {
-//                            Adaptable.GetBuilderType(typeof(C));
-//                        }, Throws.InstanceOf(typeof(FormatException)));
-//        }
+        [Test]
+        public void cannot_use_self_as_builder_adapter() {
+            var result = Adaptable.GetBuilderType(typeof(C));
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void GetBuilderType_should_obtain_builder_class() {
+            // Builder is implemented in the late-bound way that doesn't require Component Model assembly
+            var result = Adaptable.GetBuilderType(typeof(Carbonfrost.Commons.Shared.Runtime.Components.Component));
+            Assert.That(result, Is.EqualTo(typeof(ComponentBuilder)));
+
+        }
 
         [Test]
         public void role_names_are_case_sensitive() {
             Type correct = typeof(ABuilder3);
-            Type correct2 = typeof(ABuilder4);
 
             Assert.That(Adaptable.GetAdapterType(typeof(A), "Builder"), Is.EqualTo(correct));
-            Assert.That(Adaptable.GetAdapterType(typeof(A), "builder"), Is.EqualTo(correct2));
+            Assert.That(Adaptable.GetAdapterType(typeof(A), "builder"), Is.Null);
             Assert.That(Adaptable.GetBuilderType(typeof(A)), Is.EqualTo(correct));
         }
 

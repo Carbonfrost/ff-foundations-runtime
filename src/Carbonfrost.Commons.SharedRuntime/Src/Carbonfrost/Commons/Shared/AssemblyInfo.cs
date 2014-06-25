@@ -195,8 +195,7 @@ namespace Carbonfrost.Commons.Shared {
                         if (Require.IsCriticalException(ex))
                             throw;
 
-                        IStatusAppender sa = StatusAppender.ForType(typeof(AssemblyInfo));
-                        RuntimeWarning.AssemblyInfoFilterFailed(sa, assembly.GetName(), filter.GetType(), ex);
+                        RuntimeWarning.AssemblyInfoFilterFailed(assembly.GetName(), filter.GetType(), ex);
                     }
                 }
                 AddReferencedAssemblies(assembly);

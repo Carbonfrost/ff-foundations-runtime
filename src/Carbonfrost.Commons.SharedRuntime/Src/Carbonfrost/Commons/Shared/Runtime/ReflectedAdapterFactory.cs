@@ -18,11 +18,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
+    [DebuggerDisplayAttribute("{assembly}")]
     sealed class ReflectedAdapterFactory : AdapterFactory {
 
         private static readonly IDictionary<Assembly, ReflectedAdapterFactory> items

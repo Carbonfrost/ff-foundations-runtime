@@ -19,7 +19,9 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
@@ -30,21 +32,6 @@ namespace Carbonfrost.Commons.Shared.Runtime {
         public const string StreamingSource = "StreamingSource";
         public const string ActivationProvider = "ActivationProvider";
         public const string Null = "Null";
-
-        public static class BuilderFunctions {
-
-            public static readonly Expression<Func<IServiceProvider, object>> Build
-                = (a) => (default(object));
-        }
-
-        public static class StreamingSourceFunctions {
-
-            public static readonly Expression<Func<Stream, Encoding, StreamingSource>> FromStream
-                = (a, b) => default(StreamingSource);
-
-            public static readonly Expression<Func<StreamContext, Encoding, StreamingSource>> FromStreamContext
-                = (a, b) => (default(StreamingSource));
-        }
 
         public static bool IsActivationProviderType(Type type) {
             if (type == null)
@@ -58,11 +45,32 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 throw new ArgumentNullException("type"); // $NON-NLS-1
 
             // Can't itself be a builder type, must define Build
-            return !type.IsDefined(typeof(BuilderAttribute), false)
-                && Adaptable.GetMethodBySignature(type, "Build", BuilderFunctions.Build) != null;
+            if (!type.IsDefined(typeof(BuilderAttribute), false)) {
+
+                return type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+                    .Any(t => t.Name == "Build"
+                         && IsBuildReturnType(t, type) && IsBuildParameters(t));
+            }
+
+            return false;
         }
 
-        public static bool IsStreamingSourceType(Type type) {
+        static bool IsBuildParameters(MethodInfo t) {
+            var pi = t.GetParameters();
+            return pi.Length == 0 || (pi.Length == 1 && pi[0].ParameterType == typeof(IServiceProvider));
+        }
+
+        static bool IsBuildReturnType(MethodInfo t, Type type) {
+            var returnType = t.ReturnType;
+            if (returnType != null) {
+                return returnType == typeof(object)
+                    || (returnType.Name + "Builder") == type.Name;
+            }
+
+            return false;
+        }
+
+        public static bool IsStreamingSourceType(this Type type) {
             if (type == null)
                 throw new ArgumentNullException("type"); // $NON-NLS-1
 

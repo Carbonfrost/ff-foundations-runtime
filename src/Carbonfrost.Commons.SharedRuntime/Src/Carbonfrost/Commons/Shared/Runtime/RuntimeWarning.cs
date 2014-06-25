@@ -33,6 +33,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
         }
 
+        public static IStatusAppender Adaptable {
+            get {
+                return StatusAppender.ForType(typeof(Adaptable));
+            }
+        }
+
         public static void NotProviderType(this IStatusAppender s,
                                            Type providerType,
                                            string description) {
@@ -59,13 +65,12 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             s.Append(status);
         }
 
-        public static void AssemblyInfoFilterFailed(IStatusAppender sa, AssemblyName name, Type attrType, Exception error) {
-            sa.AppendError(SR.AssemblyInfoFilterFailed(attrType, name), error);
+        public static void AssemblyInfoFilterFailed(AssemblyName name, Type attrType, Exception error) {
+            AssemblyInfo.AppendError(SR.AssemblyInfoFilterFailed(attrType, name), error);
         }
 
         public static void InvalidProviderDeclared(string fullName, Exception ex) {
-            var sa = StatusAppender.ForType(typeof(Adaptable));
-            sa.AppendError(SR.InvalidProviderDeclared(fullName, ex.Message), ex);
+            Adaptable.AppendError(SR.InvalidProviderDeclared(fullName, ex.Message), ex);
         }
 
     }
