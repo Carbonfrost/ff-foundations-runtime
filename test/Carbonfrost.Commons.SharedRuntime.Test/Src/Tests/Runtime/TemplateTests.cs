@@ -112,6 +112,20 @@ namespace Tests.Runtime {
         }
 
         [Test]
+        public void GetTemplateValueType_should_obtain_template_generic_parameter() {
+            var type = typeof(ITemplate<Properties>);
+            Assert.That(Template.GetTemplateValueType(type),
+                        Is.EqualTo(typeof(Properties)));
+        }
+
+        [Test]
+        public void GetTemplateValueType_should_obtain_template_generic_parameter_From_instance() {
+            var template = Template.Create((ComponentBuilder b) => {});
+            Assert.That(Template.GetTemplateValueType(template),
+                        Is.EqualTo(typeof(ComponentBuilder)));
+        }
+
+        [Test]
         public void activation_initialize_tests() {
             var asm = Component.Assembly(ComponentName.Parse("System, Version=5.0"));
             Dictionary<string, object> values =  new Dictionary<string, object>() {

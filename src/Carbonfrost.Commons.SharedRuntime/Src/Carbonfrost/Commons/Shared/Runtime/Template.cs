@@ -25,14 +25,75 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
     public static class Template {
 
+        public static readonly ITemplate Null = new NullTemplate();
+
+        public static ITemplate<T> Compose<T>(params ITemplate<T>[] items) {
+            if (items == null || items.Length == 0)
+                return NullTemplate<T>.Instance;
+            if (items.Length == 1)
+                return items[0];
+            else
+                return new CompositeTemplate<T>(items.ToArray());
+        }
+
+        public static ITemplate<T> Compose<T>(IEnumerable<ITemplate<T>> items) {
+            if (items == null)
+                return NullTemplate<T>.Instance;
+
+            return Compose<T>(items.ToArray());
+        }
+
         public static ITemplate<T> Create<T>(Action<T> initializer) {
             if (initializer == null)
-                return new NullTemplate<T>();
+                return NullTemplate<T>.Instance;
 
             return new ThunkTemplate<T>(initializer);
         }
 
-        public static T MemberwiseCopy<T>(object source, T destination) {
+        public static Type GetTemplateValueType(ITemplate template) {
+            if (template == null)
+                throw new ArgumentNullException("template");
+
+            return GetTemplateValueType(template.GetType());
+        }
+
+        public static Type GetTemplateValueType(Type templateType) {
+            if (templateType == null)
+                throw new ArgumentNullException("templateType");
+
+            Type definition;
+            if (templateType.IsInterface && templateType.IsGenericType
+                && (definition = templateType.GetGenericTypeDefinition()) == typeof(ITemplate<>)) {
+                return templateType.GetGenericArguments()[0];
+            }
+
+            var result = templateType.GetInterface(typeof(ITemplate<>).FullName);
+			return result == null ? null : result.GetGenericArguments()[0];
+        }
+
+        public static Func<T> ToFactory<T>(ITemplate<T> template) {
+            if (template == null)
+                throw new ArgumentNullException("template");
+
+            return () => {
+                var result = Activation.CreateInstance<T>();
+                template.Initialize(result);
+                return result;
+            };
+        }
+
+        public static ITemplate<T> Typed<T>(ITemplate template) {
+            if (template == null)
+                throw new ArgumentNullException("template");
+
+            var t = template as ITemplate<T>;
+            if (t != null)
+                return t;
+
+            return new TypedAdapter<T>(template);
+        }
+
+        public static object MemberwiseCopy(object source, object destination) {
             if (source == null)
                 throw new ArgumentNullException("source");
             if (object.ReferenceEquals(destination, null))
@@ -42,7 +103,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             return destination;
         }
 
-        public static T Copy<T>(object source, T destination) {
+        public static object Copy(object source, object destination) {
             if (source == null)
                 throw new ArgumentNullException("source");
             if (object.ReferenceEquals(destination, null))
@@ -60,7 +121,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         public static ITemplate<T> Create<T>(T initializer) {
             if (object.Equals(initializer, null))
-                return new NullTemplate<T>();
+                return NullTemplate<T>.Instance;
 
             var copyFromMethod = FindCopyFromMethod(typeof(T));
             if (copyFromMethod != null)
@@ -72,7 +133,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
         public static ITemplate<T> Create<T>(IEnumerable<KeyValuePair<string, object>> initializer) {
             if (initializer == null)
-                return new NullTemplate<T>();
+                return NullTemplate<T>.Instance;
 
             var props = initializer.ToArray();
             return Create<T>(t => Activation.Initialize(t, props));
@@ -141,13 +202,50 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             }
         }
 
-        sealed class NullTemplate<T> : ITemplate<T> {
+        abstract class TemplateBase<T> : ITemplate<T> {
 
-            public void Initialize(T value) {
+            public abstract void Initialize(T value);
+
+            public virtual bool CanInitialize(object value) {
+                return value is T;
+            }
+
+            public void Initialize(object value) {
+                if (CanInitialize(value))
+                    Initialize((T) value);
+                else
+                    throw RuntimeFailure.TemplateDoesNotSupportOperand("value");
             }
         }
 
-        sealed class InvokerTemplate<T> : ITemplate<T> {
+        sealed class TypedAdapter<T> : TemplateBase<T> {
+
+            readonly ITemplate template;
+
+            public TypedAdapter(ITemplate template) {
+                this.template = template;
+            }
+
+            public override void Initialize(T value) {
+                template.Initialize(value);
+            }
+
+        }
+
+        sealed class NullTemplate<T> : TemplateBase<T> {
+
+            public static readonly ITemplate<T> Instance = new NullTemplate<T>();
+
+            private NullTemplate() {}
+            public override void Initialize(T value) {}
+        }
+
+        sealed class NullTemplate : ITemplate {
+            bool ITemplate.CanInitialize(object value) { return true; }
+            void ITemplate.Initialize(object value) {}
+        }
+
+        sealed class InvokerTemplate<T> : TemplateBase<T> {
 
             private readonly MethodInfo initializer;
             private readonly T copyFromValue;
@@ -157,12 +255,26 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 this.copyFromValue = copyFromValue;
             }
 
-            public void Initialize(T value) {
+            public override void Initialize(T value) {
                 initializer.Invoke(value, new object[] { copyFromValue });
             }
         }
 
-        sealed class ThunkTemplate<T> : ITemplate<T> {
+        sealed class CompositeTemplate<T> : TemplateBase<T> {
+
+            readonly ITemplate<T>[] items;
+
+            public CompositeTemplate(ITemplate<T>[] items) {
+                this.items = items;
+            }
+
+            public override void Initialize(T value) {
+                foreach (var t in items)
+                    t.Initialize(value);
+            }
+        }
+
+        sealed class ThunkTemplate<T> : TemplateBase<T> {
 
             private readonly Action<T> initializer;
 
@@ -170,7 +282,7 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 this.initializer = initializer;
             }
 
-            public void Initialize(T value) {
+            public override void Initialize(T value) {
                 initializer(value);
             }
         }

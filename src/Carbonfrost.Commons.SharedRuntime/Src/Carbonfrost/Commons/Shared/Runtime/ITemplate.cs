@@ -21,7 +21,12 @@ using System;
 
 namespace Carbonfrost.Commons.Shared.Runtime {
 
-    public interface ITemplate<in T> {
+    public interface ITemplate {
+        bool CanInitialize(object value);
+        void Initialize(object value);
+    }
+
+    public interface ITemplate<in T> : ITemplate {
         void Initialize(T value);
     }
 

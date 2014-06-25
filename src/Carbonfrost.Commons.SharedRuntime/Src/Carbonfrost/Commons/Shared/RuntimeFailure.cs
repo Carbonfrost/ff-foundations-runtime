@@ -29,6 +29,10 @@ namespace Carbonfrost.Commons.Shared.Runtime {
 
     static class RuntimeFailure {
 
+        public static ArgumentException TemplateDoesNotSupportOperand(string argumentName) {
+            return Failure.Prepare(new ArgumentException(SR.TemplateDoesNotSupportOperand(), argumentName));
+        }
+
         public static InvalidOperationException PublishAttributeTypeMismatch(MemberInfo m, Type serviceType) {
             return Failure.Prepare(new InvalidOperationException(SR.PublishAttributeTypeMismatch(m, serviceType)));
         }

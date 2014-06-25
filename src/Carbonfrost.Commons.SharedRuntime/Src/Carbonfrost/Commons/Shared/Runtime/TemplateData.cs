@@ -114,6 +114,14 @@ namespace Carbonfrost.Commons.Shared.Runtime {
                 this.template.Initialize(value);
             }
 
+            bool ITemplate.CanInitialize(object value) {
+                return value is T;
+            }
+
+            void ITemplate.Initialize(object value) {
+                Initialize((T) value);
+            }
+
             public QualifiedName QualifiedName { get { return name; } }
 
             public object GetAdapter(Type targetType) {
