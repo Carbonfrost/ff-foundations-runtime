@@ -19,7 +19,7 @@
 
 -->
 <build
-  xmlns="http://ns.carbonfrost.com/2013/commons/build/"
+  xmlns="http://ns.carbonfrost.com/commons/build"
   defaultTarget="release">
 
   <targets>
