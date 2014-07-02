@@ -45,14 +45,19 @@ namespace Carbonfrost.Commons.Shared.Runtime {
             if (source == null)
                 return false;
 
-            if (source.MoveNext()) {
-                this.cache.Add(source.Current);
-                OnCacheValue(source.Current);
-                return true;
+            lock (cache) {
+                if (source.MoveNext()) {
+                    if (source == null)
+                        return false;
+                    this.cache.Add(source.Current);
+                    OnCacheValue(source.Current);
+                    return true;
+                }
+
+                this.source = null;
+                this.cache.TrimExcess();
             }
 
-            this.source = null;
-            this.cache.TrimExcess();
             OnCacheComplete();
             return false;
         }
