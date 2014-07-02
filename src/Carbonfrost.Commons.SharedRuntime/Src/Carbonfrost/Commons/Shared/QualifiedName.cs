@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -29,7 +30,7 @@ using Carbonfrost.Commons.Shared.Runtime;
 namespace Carbonfrost.Commons.Shared {
 
     [TypeConverter(typeof(QualifiedNameConverter))]
-    public sealed class QualifiedName : IEquatable<QualifiedName>, IFormattable, IObjectReference {
+    public sealed class QualifiedName : IEquatable<QualifiedName>, IComparable<QualifiedName>, IFormattable, IObjectReference {
 
         [NonSerialized] private readonly int hashCodeCache;
         private readonly string localName;
@@ -57,6 +58,8 @@ namespace Carbonfrost.Commons.Shared {
         }
 
         public QualifiedName ChangeNamespace(NamespaceUri value) {
+            if (value == null)
+                throw new ArgumentNullException("value");
             return value + this.LocalName;
         }
 
@@ -203,6 +206,10 @@ namespace Carbonfrost.Commons.Shared {
             }
         }
 
+        public string ToString(string format) {
+            return ToString(format, CultureInfo.InvariantCulture);
+        }
+
         // IFormattable
         public string ToString(string format, IFormatProvider formatProvider) {
             if (string.IsNullOrEmpty(format))
@@ -219,6 +226,8 @@ namespace Carbonfrost.Commons.Shared {
                     return this.localName;
                 case 'N':
                     return this.ns.NamespaceName;
+                case 'M':
+                    return string.Concat("{", this.ns.NamespaceName, "}");
                 default:
                     throw new FormatException();
             }
@@ -275,6 +284,14 @@ namespace Carbonfrost.Commons.Shared {
                 throw RuntimeFailure.CannotExpandPrefixNotFound(prefix);
             else
                 return QualifiedName.Create(fullNs, name);
+        }
+
+        // `IComparable' implementation
+        public int CompareTo(QualifiedName other) {
+            if (other == null)
+                return 1;
+            else
+                return string.Compare(this.FullName(), other.FullName(), StringComparison.Ordinal);
         }
 
         // `IObjectReference' implementation

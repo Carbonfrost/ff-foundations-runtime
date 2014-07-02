@@ -29,13 +29,26 @@ namespace Tests {
         const string MUSHROOM_KINGDOM = "http://ns.example.com/mushroom-kingdom";
 
         [Test]
+        public void ToString_should_format() {
+            QualifiedName qn = QualifiedName.Parse("{http://ns.example.com/mushroom-kingdom} Mario");
+            Assert.That(qn.ToString(), Is.EqualTo("{http://ns.example.com/mushroom-kingdom} Mario"));
+            Assert.That(qn.ToString("F"), Is.EqualTo("{http://ns.example.com/mushroom-kingdom} Mario"));
+            Assert.That(qn.ToString("S"), Is.EqualTo("Mario"));
+            Assert.That(qn.ToString("N"), Is.EqualTo("http://ns.example.com/mushroom-kingdom"));
+            Assert.That(qn.ToString("m"), Is.EqualTo("{http://ns.example.com/mushroom-kingdom}"));
+        }
+
+        [Test]
         public void should_parse_default_ns() {
             QualifiedName qn = QualifiedName.Parse("Mario");
+            Assert.That(qn.LocalName, Is.EqualTo("Mario"));
         }
 
         [Test]
         public void should_parse_expanded_names() {
             QualifiedName qn = QualifiedName.Parse("{http://ns.example.com/mushroom-kingdom} Mario");
+            Assert.That(qn.LocalName, Is.EqualTo("Mario"));
+            Assert.That(qn.NamespaceName, Is.EqualTo("http://ns.example.com/mushroom-kingdom"));
         }
 
         [Test]
